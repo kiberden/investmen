@@ -14,7 +14,6 @@ use MoonShine\Laravel\Exceptions\MoonShineNotFoundException;
 use MoonShine\Laravel\Http\Middleware\Authenticate;
 use MoonShine\Laravel\Http\Middleware\ChangeLocale;
 use MoonShine\Laravel\Layouts\AppLayout;
-use MoonShine\Laravel\Models\MoonshineUser;
 use MoonShine\Laravel\Pages\Dashboard;
 use MoonShine\Laravel\Pages\ErrorPage;
 use MoonShine\Laravel\Pages\LoginPage;
@@ -70,8 +69,8 @@ return [
     // Authentication and profile
     'auth' => [
         'enabled' => true,
-        'guard' => 'moonshine',
-        'model' => MoonshineUser::class,
+        // 'guard' => 'moonshine',
+        'model' => User::class,
         'middleware' => [
             Authenticate::class,
         ],
@@ -83,7 +82,6 @@ return [
         'username' => 'email',
         'password' => 'password',
         'name' => 'name',
-        'avatar' => 'avatar',
     ],
 
     // Layout, palette, pages, forms

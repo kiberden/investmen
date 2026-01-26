@@ -27,3 +27,6 @@ migrate_and_seed:
 
 shell:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) bash
+
+optimize:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan optimize
