@@ -1,0 +1,66 @@
+services:
+    db:
+        image: postgres:17
+        container_name: db.${APP_NAME}
+        environment:
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            PGDATA: '/var/lib/postgresql/data/pgdata'
+        env_file:
+            - ./laravel_app/.env
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        ports:
+            - '${DB_PORT}:5432'
+        networks:
+            - investmen
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+    
+    php:
+        build:
+            context: .
+            dockerfile: .docker/php/Dockerfile
+            target: dev
+            args:
+                UID: ${UID:-1000}
+                GID: ${GID:-1000}
+        working_dir: /app
+        user: "${UID:-1000}:${GID:-1000}"
+        environment:
+            XDEBUG_CONFIG: "remote_host=host.docker.internal"
+        env_file:
+            - ./laravel_app/.env
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        container_name: php.${APP_NAME}
+        ports:
+            - '${APP_PORT}:8000'
+        volumes:
+            - ./laravel_app:/app
+        depends_on:
+            db:
+                condition: service_healthy
+        networks:
+            - investmen
+    
+    redis:
+        image: 'redis:alpine'
+        networks:
+            - investmen
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            retries: 3
+            timeout: 5s
+    
+networks:
+    investmen:
+        driver: bridge
+
+volumes:
+    pg_data:
