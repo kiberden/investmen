@@ -10,6 +10,9 @@ build:
 up:
 	@docker compose --env-file $(ENV_FILE) up -d --remove-orphans
 
+down:
+	@docker compose --env-file $(ENV_FILE) down
+
 restart_app:
 	@docker compose --env-file $(ENV_FILE) restart $(DOCKER_IMAGE)
 
