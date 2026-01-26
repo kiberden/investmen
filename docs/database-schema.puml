@@ -1,0 +1,190 @@
+@startuml Investment Management Database Schema
+
+' ============================================================================
+' Схема базы данных для системы управления инвестициями
+' ============================================================================
+' 
+' Архитектура: Трехуровневая
+' 1. Уровень аутентификации (users)
+' 2. Уровень бизнес-логики (investor_profiles)
+' 3. Уровень данных (investments + детальные таблицы)
+'
+' Особенности:
+' - Минималистичная схема (только основные данные)
+' - Один пользователь может иметь несколько профилей
+' - Каждая инвестиция имеет свою детальную таблицу по типу
+' - Легко расширяется дополнительными таблицами
+'
+' Дата создания: 26.01.2026
+' Версия: 1.0
+' ============================================================================
+
+!define TABLE(x) entity x << (T,#FFAAAA) >>
+!define PK(x) <b><color:#b8861b><&key> x</color></b>
+!define FK(x) <color:#aaaaaa><&arrow-right> x</color>
+!define IDX(x) <color:#green><&list> x</color>
+
+' Основные цвета для разных типов таблиц
+skinparam entity {
+  BackgroundColor<<users>> #E3F2FD
+  BackgroundColor<<profiles>> #FFF3E0
+  BackgroundColor<<investments>> #F1F8E9
+  BackgroundColor<<details>> #FCE4EC
+}
+
+entity "users" <<users>> {
+  PK(id): bigint
+  --
+  name: string
+  email: string
+  password: string
+  email_verified_at: timestamp
+  --
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+entity "investor_profiles" <<profiles>> {
+  PK(id): bigint
+  --
+  FK(user_id): bigint
+  profile_name: string
+  total_capital: decimal
+  description: text
+  is_active: boolean
+  --
+  created_at: timestamp
+  updated_at: timestamp
+  --
+  IDX(user_id)
+  unique(user_id, profile_name)
+}
+
+entity "investments" <<investments>> {
+  PK(id): bigint
+  --
+  FK(investor_profile_id): bigint
+  investment_type: string
+  name: string
+  quantity: decimal
+  notes: text
+  --
+  created_at: timestamp
+  updated_at: timestamp
+  --
+  IDX(investor_profile_id)
+  IDX(investment_type)
+}
+
+entity "stock_details" <<details>> {
+  PK(id): bigint
+  --
+  FK(investment_id): bigint [unique]
+  ticker: string
+  company_name: string
+  isin: string
+  --
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+entity "bond_details" <<details>> {
+  PK(id): bigint
+  --
+  FK(investment_id): bigint [unique]
+  issuer: string
+  maturity_date: date
+  coupon_rate: decimal
+  coupon_frequency: string
+  face_value: decimal
+  isin: string
+  --
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+entity "fund_details" <<details>> {
+  PK(id): bigint
+  --
+  FK(investment_id): bigint [unique]
+  fund_type: string
+  ticker: string
+  management_company: string
+  expense_ratio: decimal
+  isin: string
+  --
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+entity "currency_details" <<details>> {
+  PK(id): bigint
+  --
+  FK(investment_id): bigint [unique]
+  currency_code: string
+  currency_pair: string
+  exchange_rate: decimal
+  account_type: string
+  --
+  created_at: timestamp
+  updated_at: timestamp
+}
+
+' Связи между таблицами
+users ||--o{ investor_profiles : "имеет профили"
+investor_profiles ||--o{ investments : "имеет инвестиции"
+investments ||--o| stock_details : "детали акций"
+investments ||--o| bond_details : "детали облигаций"
+investments ||--o| fund_details : "детали фондов"
+investments ||--o| currency_details : "детали валюты"
+
+note right of users
+  Стандартная таблица
+  пользователей Laravel
+  для аутентификации
+end note
+
+note right of investor_profiles
+  Профили инвесторов
+  Один пользователь может иметь
+  несколько профилей с разными
+  инвестиционными стратегиями
+end note
+
+note right of investments
+  Основная таблица инвестиций
+  Хранит общие данные:
+  - Тип инвестиции
+  - Название
+  - Количество
+end note
+
+note bottom of stock_details
+  Специфичные данные для акций:
+  - Тикер
+  - Название компании
+  - ISIN код
+end note
+
+note bottom of bond_details
+  Специфичные данные для облигаций:
+  - Эмитент
+  - Дата погашения
+  - Купон и номинал
+end note
+
+note bottom of fund_details
+  Специфичные данные для фондов:
+  - Тип фонда
+  - Управляющая компания
+  - Комиссии
+end note
+
+note bottom of currency_details
+  Специфичные данные для валюты:
+  - Код валюты
+  - Валютная пара
+  - Курс обмена
+end note
+
+@enduml
