@@ -35,29 +35,10 @@ final class InvestorProfileFormPage extends FormPage
         return [
             Box::make([
                 ID::make(),
-
-                BelongsTo::make(
-                    'Пользователь',
-                    'user',
-                    formatted: static fn (User $model) => $model->name,
-                    resource: MoonShineUserResource::class,
-                )
-                    ->required()
-                    ->valuesQuery(static fn (Builder $q) => $q->select(['id', 'name'])),
-
                 Text::make('Название профиля', 'profile_name')
                     ->required(),
-
-                Number::make('Общий капитал', 'total_capital')
-                    ->min(0)
-                    ->step(0.01)
-                    ->required(),
-
                 Textarea::make('Описание', 'description')
                     ->nullable(),
-
-                Switcher::make('Активен', 'is_active')
-                    ->default(true),
             ]),
         ];
     }
@@ -69,7 +50,6 @@ final class InvestorProfileFormPage extends FormPage
             ?? $item->getOriginal()->user_id;
 
         return [
-            'user_id' => ['required', 'exists:users,id'],
             'profile_name' => [
                 'required',
                 'max:255',
@@ -77,7 +57,6 @@ final class InvestorProfileFormPage extends FormPage
                     ->where(static fn ($query) => $query->where('user_id', $userId))
                     ->ignoreModel($item->getOriginal()),
             ],
-            'total_capital' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'is_active' => ['boolean'],
         ];

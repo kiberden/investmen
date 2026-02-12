@@ -18,11 +18,8 @@ class InvestorProfile extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
         'profile_name',
-        'total_capital',
         'description',
-        'is_active',
     ];
 
     /**
