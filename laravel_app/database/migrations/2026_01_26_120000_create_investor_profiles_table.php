@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->string('profile_name');
-            $table->string()
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
