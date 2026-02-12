@@ -6,7 +6,7 @@
 ' 
 ' Архитектура: Трехуровневая
 ' 1. Уровень аутентификации (users)
-' 2. Уровень бизнес-логики (investor_profiles)
+' 2. Уровень бизнес-логики (brokers)
 ' 3. Уровень данных (investments + детальные таблицы)
 '
 ' Особенности:
@@ -44,7 +44,7 @@ entity "users" <<users>> {
   updated_at: timestamp
 }
 
-entity "investor_profiles" <<profiles>> {
+entity "brokers" <<profiles>> {
   PK(id): bigint
   --
   FK(user_id): bigint
@@ -63,7 +63,7 @@ entity "investor_profiles" <<profiles>> {
 entity "investments" <<investments>> {
   PK(id): bigint
   --
-  FK(investor_profile_id): bigint
+  FK(broker_id): bigint
   investment_type: string
   name: string
   quantity: decimal
@@ -72,7 +72,7 @@ entity "investments" <<investments>> {
   created_at: timestamp
   updated_at: timestamp
   --
-  IDX(investor_profile_id)
+  IDX(broker_id)
   IDX(investment_type)
 }
 
@@ -131,8 +131,8 @@ entity "currency_details" <<details>> {
 }
 
 ' Связи между таблицами
-users ||--o{ investor_profiles : "имеет профили"
-investor_profiles ||--o{ investments : "имеет инвестиции"
+users ||--o{ brokers : "имеет профили"
+brokers ||--o{ investments : "имеет инвестиции"
 investments ||--o| stock_details : "детали акций"
 investments ||--o| bond_details : "детали облигаций"
 investments ||--o| fund_details : "детали фондов"
@@ -144,7 +144,7 @@ note right of users
   для аутентификации
 end note
 
-note right of investor_profiles
+note right of brokers
   Профили инвесторов
   Один пользователь может иметь
   несколько профилей с разными

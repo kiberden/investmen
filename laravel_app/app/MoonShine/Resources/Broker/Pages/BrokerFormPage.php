@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\InvestorProfile\Pages;
+namespace App\MoonShine\Resources\Broker\Pages;
 
-use App\Models\InvestorProfile;
+use App\Models\Broker;
 use App\Models\User;
-use App\MoonShine\Resources\InvestorProfile\InvestorProfileResource;
+use App\MoonShine\Resources\Broker\BrokerResource;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
@@ -23,9 +23,9 @@ use MoonShine\UI\Fields\Text;
 use MoonShine\UI\Fields\Textarea;
 
 /**
- * @extends FormPage<InvestorProfileResource, InvestorProfile>
+ * @extends FormPage<BrokerResource, Broker>
  */
-final class InvestorProfileFormPage extends FormPage
+final class BrokerFormPage extends FormPage
 {
     /**
      * @return list<ComponentContract|FieldContract>
@@ -53,7 +53,7 @@ final class InvestorProfileFormPage extends FormPage
             'profile_name' => [
                 'required',
                 'max:255',
-                Rule::unique(InvestorProfile::class, 'profile_name')
+                Rule::unique(Broker::class, 'profile_name')
                     ->where(static fn ($query) => $query->where('user_id', $userId))
                     ->ignoreModel($item->getOriginal()),
             ],

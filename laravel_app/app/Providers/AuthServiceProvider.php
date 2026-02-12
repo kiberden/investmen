@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\InvestorProfile;
-use App\Policies\InvestorProfilePolicy;
+use App\Models\Broker;
+use App\Policies\BrokerPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -14,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        InvestorProfile::class => InvestorProfilePolicy::class,
+        Broker::class => BrokerPolicy::class,
     ];
 
     /**

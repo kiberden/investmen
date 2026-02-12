@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\InvestorProfile;
+namespace App\MoonShine\Resources\Broker;
 
-use App\Models\InvestorProfile;
-use App\MoonShine\Resources\InvestorProfile\Pages\InvestorProfileFormPage;
-use App\MoonShine\Resources\InvestorProfile\Pages\InvestorProfileIndexPage;
+use App\Models\Broker;
+use App\MoonShine\Resources\Broker\Pages\BrokerFormPage;
+use App\MoonShine\Resources\Broker\Pages\BrokerIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use MoonShine\Laravel\Resources\ModelResource;
@@ -17,14 +17,14 @@ use MoonShine\Support\Enums\Action;
 use MoonShine\Support\ListOf;
 
 /**
- * @extends ModelResource<InvestorProfile, InvestorProfileIndexPage, InvestorProfileFormPage, null>
+ * @extends ModelResource<Broker, BrokerIndexPage, BrokerFormPage, null>
  */
 #[Icon('user-circle')]
 #[Group('Инвестиции')]
 #[Order(10)]
-class InvestorProfileResource extends ModelResource
+class BrokerResource extends ModelResource
 {
-    protected string $model = InvestorProfile::class;
+    protected string $model = Broker::class;
 
     protected bool $withPolicy = true;
 
@@ -47,8 +47,8 @@ class InvestorProfileResource extends ModelResource
     protected function pages(): array
     {
         return [
-            InvestorProfileIndexPage::class,
-            InvestorProfileFormPage::class,
+            BrokerIndexPage::class,
+            BrokerFormPage::class,
         ];
     }
 

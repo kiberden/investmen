@@ -7,8 +7,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class InvestorProfile extends Model
+class Broker extends Model
 {
     use HasFactory;
 
@@ -38,5 +39,13 @@ class InvestorProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Получить учетные данные подключения к брокеру.
+     */
+    public function credential(): HasOne
+    {
+        return $this->hasOne(BrokerCredential::class);
     }
 }

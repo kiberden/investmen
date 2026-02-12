@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\MoonShine\Resources\InvestorProfile\Pages;
+namespace App\MoonShine\Resources\Broker\Pages;
 
 use App\Models\User;
-use App\MoonShine\Resources\InvestorProfile\InvestorProfileResource;
+use App\MoonShine\Resources\Broker\BrokerResource;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -20,9 +20,9 @@ use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
 
 /**
- * @extends IndexPage<InvestorProfileResource>
+ * @extends IndexPage<BrokerResource>
  */
-final class InvestorProfileIndexPage extends IndexPage
+final class BrokerIndexPage extends IndexPage
 {
     /**
      * @return list<FieldContract>

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use App\MoonShine\Resources\InvestorProfile\InvestorProfileResource;
+use App\MoonShine\Resources\Broker\BrokerResource;
 use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\ColorManager\Palettes\PurplePalette;
 use MoonShine\ColorManager\ColorManager;
@@ -32,7 +32,7 @@ final class MoonShineLayout extends AppLayout
         return [
             ...parent::menu(),
             MenuGroup::make('Инвест. профили', [
-                MenuItem::make(InvestorProfileResource::class),
+                MenuItem::make(BrokerResource::class),
             ]),
         ];
     }
