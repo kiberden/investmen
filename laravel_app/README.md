@@ -7,6 +7,75 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Xdebug in Docker
+
+Xdebug is installed in the PHP container (`.docker/php/Dockerfile`, `dev` stage) and configured via `.docker/php/xdebug.ini`.
+
+### Start project with Xdebug
+
+```bash
+make build
+make up
+```
+
+### Check that extension is enabled
+
+```bash
+docker compose --env-file ./laravel_app/.env exec php php -v
+docker compose --env-file ./laravel_app/.env exec php php -m | grep xdebug
+```
+
+### Cursor setup
+
+1. Install extension `PHP Debug` (xdebug.php-debug).
+
+2. Open `Run and Debug` and select configuration:
+   - `Listen for Xdebug (Docker Octane)`
+   - This configuration is stored in `.vscode/launch.json`.
+
+3. Ensure path mapping is correct:
+   - local: `laravel_app`
+   - remote: `/app`
+
+4. Start listener in Cursor and set breakpoints.
+
+5. Open app at `http://localhost:8000`.
+
+### PhpStorm setup
+
+1. Open `Settings -> PHP` and set:
+   - CLI Interpreter: `From Docker, Vagrant, VM, WSL, Remote...`
+   - Docker Compose file: `docker-compose.yml`
+   - Service: `php`
+   - PHP executable: `/usr/local/bin/php`
+
+2. Open `Settings -> PHP -> Servers` and create server:
+   - Name: `investman-docker`
+   - Host: `localhost`
+   - Port: `8000`
+   - Debugger: `Xdebug`
+   - Enable `Use path mappings`
+   - Path mapping: local `laravel_app` -> remote `/app`
+
+3. Open `Settings -> PHP -> Debug` and check:
+   - Xdebug port: `9003`
+   - Can accept external connections (start listening for PHP debug connections)
+
+4. In top toolbar click `Start Listening for PHP Debug Connections`.
+
+5. Put a breakpoint and open app in browser at `http://localhost:8000`.
+
+Current container-side values:
+- `xdebug.client_port=9003`
+- `xdebug.idekey=PHPSTORM`
+- `xdebug.client_host=host.docker.internal`
+
+By default, `XDEBUG_MODE` is `debug,develop`. You can override it before startup, for example:
+
+```bash
+XDEBUG_MODE=off make up
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

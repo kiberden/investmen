@@ -5,7 +5,10 @@ envs:
 	cp ./laravel_app/.env.example ./laravel_app/.env
 
 build:
-	@docker compose --env-file $(ENV_FILE) build
+	@docker compose --env-file $(ENV_FILE) build --no-cache
+
+debug_restart:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan octane:reload --server=frankenphp
 
 up:
 	@docker compose --env-file $(ENV_FILE) up -d --remove-orphans
@@ -33,3 +36,4 @@ shell:
 
 optimize:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan optimize
+

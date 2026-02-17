@@ -40,18 +40,8 @@ RUN useradd ${UID}; \
 	# Give write access to /config/caddy and /data/caddy
 	chown -R ${UID}:${GID} /config/caddy /data/caddy
 
-#RUN if getent group ${GID}; then \
-#      group_name=$(getent group ${GID} | cut -d: -f1); \
-#      useradd -m -u ${UID} -g ${GID} -s /bin/bash www; \
-#    else \
-#      groupadd -g ${GID} www && \
-#      useradd -m -u ${UID} -g www -s /bin/bash www; \
-#      group_name=www; \
-#    fi
-
 # Устанавливаем Composer с правильными правами доступа
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-#RUN mkdir -p "${COMPOSER_HOME}"
 RUN chown -R ${UID}:${GID} "/usr/local/bin/composer" \
     && chmod -R 755 "/usr/local/bin/composer"
 
