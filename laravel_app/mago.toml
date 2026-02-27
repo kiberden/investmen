@@ -1,0 +1,37 @@
+php-version = "8.4"
+threads = 8
+
+[source]
+paths = ["app", "config", "database", "routes", "tests"]
+includes = ["vendor"]
+excludes = [
+    "bootstrap/cache/**",
+    "storage/**",
+    "public/vendor/**",
+    "vendor/**",
+]
+
+[formatter]
+preset = "laravel"
+print-width = 120
+
+[linter]
+integrations = ["laravel", "phpunit"]
+baseline = "lint-baseline.toml"
+baseline-variant = "loose"
+
+[linter.rules]
+prefer-anonymous-migration = { level = "error" }
+no-request-all = { level = "error" }
+middleware-in-routes = { level = "warning" }
+cyclomatic-complexity = { level = "warning", threshold = 15 }
+
+[analyzer]
+baseline = "analysis-baseline.toml"
+baseline-variant = "loose"
+find-unused-expressions = true
+find-unused-definitions = true
+find-unused-parameters = true
+check-use-statements = true
+check-property-initialization = true
+check-throws = false

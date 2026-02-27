@@ -26,7 +26,7 @@ services:
         build:
             context: .
             dockerfile: .docker/php/Dockerfile
-            target: dev
+            target: web-dev
             args:
                 UID: ${UID:-1000}
                 GID: ${GID:-1000}
@@ -34,7 +34,7 @@ services:
         user: "${UID:-1000}:${GID:-1000}"
         environment:
             XDEBUG_MODE: '${XDEBUG_MODE:-debug,develop}'
-            XDEBUG_CONFIG: 'client_host=host.docker.internal client_port=9003 idekey=PHPSTORM'
+            XDEBUG_CONFIG: 'client_host=host.docker.internal client_port=9003 idekey=PHPSTORM discover_client_host=0 connect_timeout_ms=1000'
             PHP_IDE_CONFIG: 'serverName=investman-docker'
             OCTANE_SERVER: 'frankenphp'
         env_file:
@@ -49,6 +49,31 @@ services:
             - ./logs:/logs
         depends_on:
             db:
+                condition: service_healthy
+        networks:
+            - investmen
+
+    horizon:
+        build:
+            context: .
+            dockerfile: .docker/php/Dockerfile
+            target: horizon-dev
+            args:
+                UID: ${UID:-1000}
+                GID: ${GID:-1000}
+        container_name: horizon.${APP_NAME}
+        working_dir: /app
+        user: "${UID:-1000}:${GID:-1000}"
+        command: php artisan horizon
+        env_file:
+            - ./laravel_app/.env
+        volumes:
+            - ./laravel_app:/app
+            - ./logs:/logs
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
                 condition: service_healthy
         networks:
             - investmen

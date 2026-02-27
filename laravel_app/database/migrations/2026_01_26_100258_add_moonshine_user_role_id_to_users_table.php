@@ -5,15 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use MoonShine\Laravel\Models\MoonshineUserRole;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('moonshine_user_role_id')
+            $table
+                ->foreignId('moonshine_user_role_id')
                 ->nullable()
                 ->after('id')
                 ->constrained('moonshine_user_roles')

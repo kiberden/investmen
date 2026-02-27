@@ -1,9 +1,10 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\MoonShine\Resources\Broker;
 
+use App\Actions\Broker\SyncBrokerCredentialAction;
 use App\Models\Broker;
 use App\MoonShine\Resources\Broker\Pages\BrokerFormPage;
 use App\MoonShine\Resources\Broker\Pages\BrokerIndexPage;
@@ -29,19 +30,13 @@ use MoonShine\Support\ListOf;
 #[Order(10)]
 class BrokerResource extends ModelResource
 {
-    private const CREDENTIAL_COLUMNS = [
-        'token',
-        'secret',
-        'expire_at',
-    ];
-
     protected string $model = Broker::class;
 
     protected bool $withPolicy = true;
 
     protected string $column = 'profile_name';
 
-    protected array $with = ['user'];
+    protected array $with = ['user', 'credential'];
 
     protected bool $simplePaginate = true;
 
@@ -82,49 +77,25 @@ class BrokerResource extends ModelResource
 
     public function save(DataWrapperContract $item, ?FieldsContract $fields = null): DataWrapperContract
     {
-        dump($fields);
         $fields ??= $this->getFormFields()->onlyFields(withApplyWrappers: true);
-        $credentialData = $this->extractCredentialData($item->toArray());
+        /** @var SyncBrokerCredentialAction $syncBrokerCredentialAction */
+        $syncBrokerCredentialAction = app(SyncBrokerCredentialAction::class);
 
         $brokerFields = $fields->exceptElements(
-            static fn (ComponentContract $element): bool => $element instanceof FieldContract
-                && \in_array($element->getColumn(), self::CREDENTIAL_COLUMNS, true)
+            static fn(ComponentContract $element): bool => $element instanceof FieldContract
+            && \in_array($element->getColumn(), SyncBrokerCredentialAction::credentialColumns(), true),
         );
 
-        return DB::transaction(function () use ($item, $brokerFields, $credentialData): DataWrapperContract {
+        return DB::transaction(function () use (
+            $item,
+            $brokerFields,
+            $syncBrokerCredentialAction,
+        ): DataWrapperContract {
             $savedItem = parent::save($item, $brokerFields);
 
-            $this->syncCredential($savedItem->getOriginal(), $credentialData);
+            $syncBrokerCredentialAction->execute($savedItem->getOriginal(), request());
 
             return $savedItem;
         });
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     * @return array<string, mixed>
-     */
-    private function extractCredentialData(array $data): array
-    {
-        return array_filter(
-            [
-                'token' => $data['token'] ?? null,
-                'secret' => $data['secret'] ?? null,
-                'expire_at' => $data['expire_at'] ?? null,
-            ],
-            static fn (mixed $value): bool => $value !== null && $value !== ''
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $credentialData
-     */
-    private function syncCredential(Broker $broker, array $credentialData): void
-    {
-        if ($credentialData === []) {
-            return;
-        }
-
-        $broker->credential()->updateOrCreate([], $credentialData);
     }
 }

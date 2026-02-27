@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use MoonShine\Laravel\Models\MoonshineUserRole;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -23,7 +22,8 @@ return new class extends Migration
         Schema::create('moonshine_users', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('moonshine_user_role_id')
+            $table
+                ->foreignId('moonshine_user_role_id')
                 ->default(MoonshineUserRole::DEFAULT_ROLE_ID)
                 ->constrained()
                 ->cascadeOnDelete()

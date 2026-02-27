@@ -13,9 +13,10 @@ class BrokerCredential extends Model
      * @var array<string, string>
      */
     protected $fillable = [
+        'broker_id',
         'token',
         'secret',
-        'expire_at'
+        'expire_at',
     ];
 
     /**
@@ -26,7 +27,7 @@ class BrokerCredential extends Model
     protected $casts = [
         'token' => 'encrypted',
         'secret' => 'encrypted',
-        'is_active' => 'boolean',
+        'expire_at' => 'datetime',
     ];
 
     /**

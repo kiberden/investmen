@@ -1,9 +1,12 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\MoonShine\Resources\MoonShineUser\Pages;
 
+use App\Models\User as MoonshineUser;
+use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
+use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -13,8 +16,6 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Models\MoonshineUserRole;
 use MoonShine\Laravel\Pages\Crud\FormPage;
-use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
-use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
 use MoonShine\UI\Components\Collapse;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Components\Layout\Flex;
@@ -27,7 +28,6 @@ use MoonShine\UI\Fields\Image;
 use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\PasswordRepeat;
 use MoonShine\UI\Fields\Text;
-use App\Models\User as MoonshineUser;
 
 /**
  * @extends FormPage<MoonShineUserResource, MoonshineUser>
@@ -48,18 +48,16 @@ final class MoonShineUserFormPage extends FormPage
                         BelongsTo::make(
                             __('moonshine::ui.resource.role'),
                             'moonshineUserRole',
-                            formatted: static fn (MoonshineUserRole $model) => $model->name,
+                            formatted: static fn(MoonshineUserRole $model) => $model->name,
                             resource: MoonShineUserRoleResource::class,
                         )
                             ->creatable()
-                            ->valuesQuery(static fn (Builder $q) => $q->select(['id', 'name'])),
+                            ->valuesQuery(static fn(Builder $q) => $q->select(['id', 'name'])),
 
                         Flex::make([
-                            Text::make(__('moonshine::ui.resource.name'), 'name')
-                                ->required(),
+                            Text::make(__('moonshine::ui.resource.name'), 'name')->required(),
 
-                            Email::make(__('moonshine::ui.resource.email'), 'email')
-                                ->required(),
+                            Email::make(__('moonshine::ui.resource.email'), 'email')->required(),
                         ]),
 
                         Image::make(__('moonshine::ui.resource.avatar'), 'avatar')
@@ -68,19 +66,20 @@ final class MoonShineUserFormPage extends FormPage
                             ->allowedExtensions(['jpg', 'png', 'jpeg', 'gif']),
 
                         Date::make(__('moonshine::ui.resource.created_at'), 'created_at')
-                            ->format("d.m.Y")
+                            ->format('d.m.Y')
                             ->default(now()->toDateTimeString()),
                     ])->icon('user-circle'),
 
                     Tab::make(__('moonshine::ui.resource.password'), [
                         Collapse::make(__('moonshine::ui.resource.change_password'), [
-                            Password::make(__('moonshine::ui.resource.password'), 'password')
-                                ->customAttributes(['autocomplete' => 'new-password'])
-                                ->eye(),
+                            Password::make(__('moonshine::ui.resource.password'), 'password')->customAttributes([
+                                'autocomplete' => 'new-password',
+                            ])->eye(),
 
-                            PasswordRepeat::make(__('moonshine::ui.resource.repeat_password'), 'password_confirmation')
-                                ->customAttributes(['autocomplete' => 'confirm-password'])
-                                ->eye(),
+                            PasswordRepeat::make(
+                                __('moonshine::ui.resource.repeat_password'),
+                                'password_confirmation',
+                            )->customAttributes(['autocomplete' => 'confirm-password'])->eye(),
                         ])->icon('lock-closed'),
                     ])->icon('lock-closed'),
                 ]),
@@ -102,7 +101,7 @@ final class MoonShineUserFormPage extends FormPage
             ],
             'avatar' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,jpg,png,gif'],
             'password' => [
-                ...$item->getKey() !== null ? ['sometimes', 'nullable'] : ['required'],
+                ...( $item->getKey() !== null ? ['sometimes', 'nullable'] : ['required'] ),
                 PasswordRule::defaults(),
                 'confirmed',
             ],

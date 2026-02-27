@@ -1,0 +1,463 @@
+variant = "loose"
+
+[[issues]]
+file = "app/Actions/Broker/SyncBrokerCredentialAction.php"
+code = "less-specific-argument"
+message = 'Argument type mismatch for argument #1 of `App\Actions\Broker\SyncBrokerCredentialAction::extractcredentialdata`: expected `array<string, mixed>`, but provided type `array<array-key, mixed>` is less specific.'
+count = 1
+
+[[issues]]
+file = "app/Actions/Broker/SyncBrokerCredentialAction.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 1
+
+[[issues]]
+file = "app/Actions/Broker/SyncBrokerCredentialAction.php"
+code = "redundant-comparison"
+message = "Redundant `!==` comparison: left-hand side is always not identical to right-hand side."
+count = 2
+
+[[issues]]
+file = "app/Actions/Broker/SyncBrokerCredentialAction.php"
+code = "redundant-logical-operation"
+message = "Redundant `&&` operation: left operand is always truthy and right operand is evaluated."
+count = 1
+
+[[issues]]
+file = "app/Actions/Broker/SyncBrokerCredentialAction.php"
+code = "redundant-logical-operation"
+message = "Redundant `&&` operation: left operand is evaluated and right operand is always truthy."
+count = 1
+
+[[issues]]
+file = "app/Enums/InvestmentType.php"
+code = "less-specific-nested-argument-type"
+message = "Argument type mismatch for argument #1 of `array_combine`: expected `array<array-key, ('K.array_combine() extends array-key)>`, but provided type `array<array-key, mixed>` is less specific."
+count = 1
+
+[[issues]]
+file = "app/Exceptions/Handler.php"
+code = "unused-parameter"
+message = "Parameter `$e` is never used."
+count = 1
+
+[[issues]]
+file = "app/Models/Broker.php"
+code = "incompatible-property-type"
+message = 'Property `App\Models\Broker::$casts` has an incompatible type declaration from docblock.'
+count = 1
+
+[[issues]]
+file = "app/Models/Broker.php"
+code = "missing-template-parameter"
+message = 'Too few template arguments for `Illuminate\Database\Eloquent\Factories\HasFactory`: expected 1, but found 0.'
+count = 1
+
+[[issues]]
+file = "app/Models/BrokerCredential.php"
+code = "incompatible-property-type"
+message = 'Property `App\Models\BrokerCredential::$casts` has an incompatible type declaration from docblock.'
+count = 1
+
+[[issues]]
+file = "app/Models/BrokerCredential.php"
+code = "incompatible-property-type"
+message = 'Property `App\Models\BrokerCredential::$fillable` has an incompatible type declaration from docblock.'
+count = 1
+
+[[issues]]
+file = "app/Models/User.php"
+code = "incompatible-property-type"
+message = 'Property `App\Models\User::$casts` has an incompatible type declaration from docblock.'
+count = 1
+
+[[issues]]
+file = "app/Models/User.php"
+code = "incompatible-property-type"
+message = 'Property `App\Models\User::$hidden` has an incompatible type declaration from docblock.'
+count = 1
+
+[[issues]]
+file = "app/Models/User.php"
+code = "missing-template-parameter"
+message = 'Too few template arguments for `Illuminate\Database\Eloquent\Factories\HasFactory`: expected 1, but found 0.'
+count = 1
+
+[[issues]]
+file = "app/Models/User.php"
+code = "missing-template-parameter"
+message = 'Too few template arguments for `Laravel\Sanctum\HasApiTokens`: expected 1, but found 0.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Layouts/MoonShineLayout.php"
+code = "incompatible-parameter-type"
+message = 'Parameter `$colorManager` of `App\MoonShine\Layouts\MoonShineLayout::colors()` expects type `MoonShine\ColorManager\ColorManager` but parent `MoonShine\Crud\Layouts\AbstractLayout::colors()` expects type `MoonShine\Contracts\ColorManager\ColorManagerContract`'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Layouts/MoonShineLayout.php"
+code = "missing-constructor"
+message = 'Class `App\MoonShine\Layouts\MoonShineLayout` has typed properties without default values but no constructor to initialize them.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Pages/Dashboard.php"
+code = "missing-template-parameter"
+message = 'Too few template arguments for `MoonShine\Laravel\Pages\Page`: expected 1, but found 0.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/BrokerResource.php"
+code = "incompatible-parameter-name"
+message = 'Parameter #1 of `App\MoonShine\Resources\Broker\BrokerResource::modifyitemquerybuilder()` is named `$eloquentBuilder` but parent `MoonShine\Laravel\Traits\Resource\ResourceModelQuery::modifyitemquerybuilder()` names it `$builder`'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/BrokerResource.php"
+code = "incompatible-parameter-name"
+message = 'Parameter #1 of `App\MoonShine\Resources\Broker\BrokerResource::modifyquerybuilder()` is named `$eloquentBuilder` but parent `MoonShine\Laravel\Traits\Resource\ResourceModelQuery::modifyquerybuilder()` names it `$builder`'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/BrokerResource.php"
+code = "less-specific-argument"
+message = 'Argument type mismatch for argument #2 of `moonshine\laravel\resources\modelresource::save`: expected `MoonShine\Laravel\Collections\Fields<MoonShine\Contracts\UI\FieldContract>|null`, but provided type `moonshine\core\collections\basecollection<MoonShine\Contracts\UI\ComponentContract>&static` is less specific.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/BrokerResource.php"
+code = "mixed-return-statement"
+message = 'Could not infer a precise return type for function `app\moonshine\resources\broker\brokerresource::save`. Saw type `mixed`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/BrokerResource.php"
+code = "redundant-docblock-type"
+message = "Redundant docblock type for variable `$syncBrokerCredentialAction`."
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "invalid-return-statement"
+message = '''Invalid return type for function `app\moonshine\resources\broker\pages\brokerformpage::rules`: expected `array<string, array<array-key, string>|list<Illuminate\Contracts\Validation\ValidationRule|Stringable>|string>`, but found `array{'description': list{string('nullable'), string('string')}, 'expire_at': list{string('nullable'), string('date')}, 'is_active': list{string('boolean')}, 'profile_name': list{string('required'), string('max:255'), Illuminate\Validation\Rules\Unique&static}, 'secret': list{string('string')}, 'token': list{string('string')}}`.'''
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 2
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "mixed-method-access"
+message = "Attempting to access a method on a non-object type (`mixed`)."
+count = 2
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "mixed-property-access"
+message = "Attempting to access a property on a non-object type (`mixed`)."
+count = 2
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $credential on class `App\Models\Broker`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $user_id on class `App\Models\Broker`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "possibly-null-property-access"
+message = "Attempting to access a property on a possibly `null` value."
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php"
+code = "redundant-nullsafe-operator"
+message = "Redundant nullsafe operator (`?->`) used on an expression that is never `null`."
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerIndexPage.php"
+code = "incompatible-parameter-type"
+message = 'Parameter `$component` of `App\MoonShine\Resources\Broker\Pages\BrokerIndexPage::modifylistcomponent()` expects type `MoonShine\UI\Components\Table\TableBuilder` but parent `MoonShine\Crud\Pages\IndexPage::modifylistcomponent()` expects type `MoonShine\Contracts\UI\ComponentContract`'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerIndexPage.php"
+code = "invalid-argument"
+message = '''Invalid argument type for argument #1 of `moonshine\ui\fields\field::changepreview`: expected `(closure(mixed, moonshine\ui\fields\field&static): mixed)`, but found `(closure(mixed, MoonShine\UI\Fields\Text): string('Настроены')|string('Не настроены'))`.'''
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerIndexPage.php"
+code = "non-documented-method"
+message = 'Ambiguous method call to `select` on class `Illuminate\Contracts\Database\Eloquent\Builder`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerIndexPage.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $name on class `App\Models\User`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/Broker/Pages/BrokerIndexPage.php"
+code = "unused-parameter"
+message = "Parameter `$field` is never used."
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/MoonShineUserResource.php"
+code = "invalid-return-statement"
+message = 'Invalid return type for function `app\moonshine\resources\moonshineuser\moonshineuserresource::gettitle`: expected `string`, but found `array<array-key, mixed>|null|string`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/MoonShineUserResource.php"
+code = "nullable-return-statement"
+message = 'Function `app\moonshine\resources\moonshineuser\moonshineuserresource::gettitle` is declared to return `string` but possibly returns a nullable value (inferred as `array<array-key, mixed>|null|string`).'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/Pages/MoonShineUserFormPage.php"
+code = "invalid-return-statement"
+message = '''Invalid return type for function `app\moonshine\resources\moonshineuser\pages\moonshineuserformpage::rules`: expected `array<string, array<array-key, string>|list<Illuminate\Contracts\Validation\ValidationRule|Stringable>|string>`, but found `array{'avatar': list{string('sometimes'), string('nullable'), string('image'), string('mimes:jpeg,jpg,png,gif')}, 'email': list{string('sometimes'), string('bail'), string('required'), string('email'), Illuminate\Validation\Rules\Unique&static}, 'moonshine_user_role_id': string('required'), 'name': string('required'), 'password': list{Illuminate\Validation\Rules\Password, string('confirmed')}}`.'''
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/Pages/MoonShineUserFormPage.php"
+code = "non-documented-method"
+message = 'Ambiguous method call to `select` on class `Illuminate\Contracts\Database\Eloquent\Builder`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/Pages/MoonShineUserFormPage.php"
+code = "possibly-non-existent-method"
+message = 'Method `getuseravatarsdir` might not exist on type `MoonShine\Contracts\Core\DependencyInjection\ConfiguratorContract` at runtime.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/Pages/MoonShineUserIndexPage.php"
+code = "incompatible-parameter-type"
+message = 'Parameter `$component` of `App\MoonShine\Resources\MoonShineUser\Pages\MoonShineUserIndexPage::modifylistcomponent()` expects type `MoonShine\UI\Components\Table\TableBuilder` but parent `MoonShine\Crud\Pages\IndexPage::modifylistcomponent()` expects type `MoonShine\Contracts\UI\ComponentContract`'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUser/Pages/MoonShineUserIndexPage.php"
+code = "non-documented-method"
+message = 'Ambiguous method call to `select` on class `Illuminate\Contracts\Database\Eloquent\Builder`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUserRole/MoonShineUserRoleResource.php"
+code = "invalid-return-statement"
+message = 'Invalid return type for function `app\moonshine\resources\moonshineuserrole\moonshineuserroleresource::gettitle`: expected `string`, but found `array<array-key, mixed>|null|string`.'
+count = 1
+
+[[issues]]
+file = "app/MoonShine/Resources/MoonShineUserRole/MoonShineUserRoleResource.php"
+code = "nullable-return-statement"
+message = 'Function `app\moonshine\resources\moonshineuserrole\moonshineuserroleresource::gettitle` is declared to return `string` but possibly returns a nullable value (inferred as `array<array-key, mixed>|null|string`).'
+count = 1
+
+[[issues]]
+file = "app/Observers/BrokerObserver.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $user_id on class `App\Models\Broker`.'
+count = 1
+
+[[issues]]
+file = "app/Policies/BrokerCredentialPolicy.php"
+code = "unused-parameter"
+message = "Parameter `$brokerCredential` is never used."
+count = 5
+
+[[issues]]
+file = "app/Policies/BrokerCredentialPolicy.php"
+code = "unused-parameter"
+message = "Parameter `$user` is never used."
+count = 7
+
+[[issues]]
+file = "app/Policies/BrokerPolicy.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $id on class `App\Models\User`.'
+count = 3
+
+[[issues]]
+file = "app/Policies/BrokerPolicy.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $user_id on class `App\Models\Broker`.'
+count = 3
+
+[[issues]]
+file = "app/Providers/HorizonServiceProvider.php"
+code = "non-documented-property"
+message = 'Ambiguous property access: $email on class `Illuminate\Support\Optional`.'
+count = 1
+
+[[issues]]
+file = "app/Providers/MoonShineServiceProvider.php"
+code = "docblock-type-mismatch"
+message = 'Docblock type `MoonShine\Contracts\Core\DependencyInjection\CoreContract<MoonShine\Laravel\DependencyInjection\MoonShineConfigurator>` for parameter `$core` is incompatible with native type `MoonShine\Contracts\Core\DependencyInjection\CoreContract`.'
+count = 1
+
+[[issues]]
+file = "app/Providers/RouteServiceProvider.php"
+code = "missing-magic-method"
+message = "Call to documented magic method `middleware()` on a class that cannot handle it."
+count = 2
+
+[[issues]]
+file = "app/Providers/RouteServiceProvider.php"
+code = "mixed-property-access"
+message = "Attempting to access a property on a non-object type (`mixed`)."
+count = 1
+
+[[issues]]
+file = "app/Providers/RouteServiceProvider.php"
+code = "redundant-nullsafe-operator"
+message = "Redundant nullsafe operator (`?->`) used on an expression that is never `null`."
+count = 1
+
+[[issues]]
+file = "config/app.php"
+code = "mixed-operand"
+message = "Casting `mixed` to `bool`."
+count = 1
+
+[[issues]]
+file = "config/broadcasting.php"
+code = "mixed-operand"
+message = "Invalid middle operand: type `mixed` cannot be reliably used in string concatenation."
+count = 1
+
+[[issues]]
+file = "config/cache.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `illuminate\support\str::slug`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "config/database.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `illuminate\support\str::slug`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "config/filesystems.php"
+code = "mixed-operand"
+message = "Invalid left operand: type `mixed` cannot be reliably used in string concatenation."
+count = 1
+
+[[issues]]
+file = "config/horizon.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `illuminate\support\str::slug`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "config/logging.php"
+code = "mixed-operand"
+message = "Invalid middle operand: type `mixed` cannot be reliably used in string concatenation."
+count = 1
+
+[[issues]]
+file = "config/logging.php"
+code = "mixed-operand"
+message = "Invalid right operand: type `mixed` cannot be reliably used in string concatenation."
+count = 1
+
+[[issues]]
+file = "config/octane.php"
+code = "mixed-array-assignment"
+message = "Unsafe array assignment on type `mixed`."
+count = 1
+
+[[issues]]
+file = "config/octane.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 1
+
+[[issues]]
+file = "config/sanctum.php"
+code = "mixed-argument"
+message = "Invalid argument type for argument #2 of `explode`: expected `string`, but found `mixed`."
+count = 1
+
+[[issues]]
+file = "config/session.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #1 of `illuminate\support\str::slug`: expected `string`, but found `mixed`.'
+count = 1
+
+[[issues]]
+file = "database/factories/UserFactory.php"
+code = "unused-parameter"
+message = "Parameter `$attributes` is never used."
+count = 1
+
+[[issues]]
+file = "routes/api.php"
+code = "missing-magic-method"
+message = "Call to documented magic method `middleware()` on a class that cannot handle it."
+count = 1
+
+[[issues]]
+file = "routes/channels.php"
+code = "mixed-property-access"
+message = "Attempting to access a property on a non-object type (`mixed`)."
+count = 1
+
+[[issues]]
+file = "routes/console.php"
+code = "mixed-method-access"
+message = "Attempting to access a method on a non-object type (`mixed`)."
+count = 1
+
+[[issues]]
+file = "routes/console.php"
+code = "undefined-variable"
+message = "Undefined variable: `$this`."
+count = 1
+
+[[issues]]
+file = "tests/CreatesApplication.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 1
+
+[[issues]]
+file = "tests/CreatesApplication.php"
+code = "mixed-method-access"
+message = "Attempting to access a method on a non-object type (`mixed`)."
+count = 2
+
+[[issues]]
+file = "tests/CreatesApplication.php"
+code = "mixed-return-statement"
+message = 'Could not infer a precise return type for function `tests\createsapplication::createapplication`. Saw type `mixed`.'
+count = 1
+
+[[issues]]
+file = "tests/Unit/ExampleTest.php"
+code = "non-existent-class-like"
+message = 'Class `Tests\Unit\ExampleTest` cannot extend unknown type `TestCase`'
+count = 1
+
+[[issues]]
+file = "tests/Unit/ExampleTest.php"
+code = "non-existent-use-import"
+message = 'Imported class, interface, trait, or enum `PHPUnit\Framework\TestCase` does not exist.'
+count = 1

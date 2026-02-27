@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\MoonShine\Resources\Broker\Pages;
 
@@ -31,25 +31,14 @@ final class BrokerIndexPage extends IndexPage
     {
         return [
             ID::make()->sortable(),
-
-            BelongsTo::make(
-                'Пользователь',
-                'user',
-                formatted: static fn (User $model) => $model->name,
-                resource: MoonShineUserResource::class,
-            ),
-
-            Text::make('Профиль', 'profile_name')
-                ->sortable(),
-
-            Number::make('Капитал', 'total_capital')
-                ->sortable(),
-
+            Text::make('Профиль', 'profile_name')->sortable(),
+            Number::make('Капитал', 'total_capital')->sortable(),
             Switcher::make('Активен', 'is_active'),
-
-            Date::make('Создан', 'created_at')
-                ->format('d.m.Y')
-                ->sortable(),
+            Text::make('Доступы', 'credential.id')->changePreview(static fn(mixed $value, Text $field): string => $value
+                ? 'Настроены'
+                : 'Не настроены'),
+            Date::make('Действует до', 'credential.expire_at')->format('d.m.Y H:i'),
+            Date::make('Создан', 'created_at')->format('d.m.Y')->sortable(),
         ];
     }
 
@@ -59,9 +48,9 @@ final class BrokerIndexPage extends IndexPage
             BelongsTo::make(
                 'Пользователь',
                 'user',
-                formatted: static fn (User $model) => $model->name,
+                formatted: static fn(User $model) => $model->name,
                 resource: MoonShineUserResource::class,
-            )->valuesQuery(static fn (Builder $q) => $q->select(['id', 'name'])),
+            )->valuesQuery(static fn(Builder $q) => $q->select(['id', 'name'])),
 
             Text::make('Профиль', 'profile_name'),
 

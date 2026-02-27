@@ -37,3 +37,27 @@ shell:
 optimize:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan optimize
 
+mago_config:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago config
+
+mago_files:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago list-files
+
+mago_format_auto:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago format
+
+mago_format_diff:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago format --dry-run
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago lint
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago analyze
+
+mago_ci_check:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago format --check
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago lint
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago analyze
+
+mago_baseline_lint:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago lint --generate-baseline --baseline lint-baseline.toml
+
+mago_baseline_analyze:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago analyze --generate-baseline --baseline analysis-baseline.toml
