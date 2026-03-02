@@ -7,12 +7,14 @@
 На текущем этапе покрываем:
 
 - подключение к `prod` и `sandbox`;
+- привязку подключений к профилям пользователей в админке;
 - получение базовых данных пользователя по портфелю:
   - портфель;
   - позиции;
   - операции;
 - фабрику выбора провайдера;
 - сервис-провайдер Laravel для регистрации зависимостей;
+- безопасное чтение учетных данных из `brokerCredentials`;
 - краткосрочное хранение данных.
 
 Документация API T-Bank: [T-Invest API Operations / Portfolio Stream](https://developer.tbank.ru/invest/services/operations/methods#/#portfoliostream)
@@ -32,11 +34,16 @@
 
 - `config/broker-providers.php`
   - настройки провайдеров и окружений (`prod` / `sandbox`);
-  - токены, endpoint, timeout, app-name.
+  - endpoint, timeout, app-name;
+  - токены/секреты в конфиге не храним.
 - `App\Providers\BrokerGatewayServiceProvider`
   - регистрация фабрики и реализаций.
 - `App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory`
-  - выбор нужного провайдера по коду и окружению.
+  - выбор нужного провайдера по `broker` + окружению.
+- `App\Services\BrokerGateway\Access\BrokerAccessService`
+  - проверка, что пользователь имеет доступ только к своим `brokers`.
+- `App\Services\BrokerGateway\Credentials\BrokerCredentialResolver`
+  - получение `token + secret` из `brokerCredentials`.
 - `App\Services\BrokerGateway\Contracts\*`
   - интерфейсы provider/services.
 - `App\Services\BrokerGateway\Providers\TBank\*`
@@ -57,13 +64,26 @@
 
 ### `BrokerGatewayProviderFactory`
 
-- `make(string $providerCode, string $environment): BrokerGatewayProviderInterface`
+- `makeForBroker(Broker $broker, User $user): BrokerGatewayProviderInterface`
 - `supportedProviders(): array`
+
+### `BrokerAccessService`
+
+- `assertUserCanUseBroker(User $user, Broker $broker): void`
+- `brokersForUser(User $user): Collection`
+
+### `BrokerCredentialResolver`
+
+- `resolveActive(Broker $broker): BrokerCredential`
+- `resolveForEnvironment(Broker $broker, string $environment): BrokerCredential`
+- `decryptToken(BrokerCredential $credential): string`
+- `decryptSecret(BrokerCredential $credential): string`
 
 ### `TBankProvider`
 
 - `getName(): string`
 - `getEnvironment(): string`
+- `getCredentialFingerprint(): string`
 - `portfolio(): PortfolioServiceInterface`
 - `positions(): PositionsServiceInterface`
 - `operations(): OperationsServiceInterface`
@@ -87,11 +107,19 @@
 
 ### `PortfolioCacheRepository`
 
-- `putPortfolio(string $provider, string $environment, string $accountId, PortfolioDto $dto, int $ttlSec): void`
-- `getPortfolio(string $provider, string $environment, string $accountId): ?PortfolioDto`
-- `putPositions(string $provider, string $environment, string $accountId, PositionsDto $dto, int $ttlSec): void`
-- `getPositions(string $provider, string $environment, string $accountId): ?PositionsDto`
-- `invalidateAccount(string $provider, string $environment, string $accountId): void`
+- `putPortfolio(string $provider, string $environment, int $profileId, int $brokerId, string $accountId, PortfolioDto $dto, int $ttlSec): void`
+- `getPortfolio(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): ?PortfolioDto`
+- `putPositions(string $provider, string $environment, int $profileId, int $brokerId, string $accountId, PositionsDto $dto, int $ttlSec): void`
+- `getPositions(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): ?PositionsDto`
+- `invalidateAccount(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): void`
+
+## Модель доступа и хранения секретов
+
+- `Broker` принадлежит профилю пользователя в админке.
+- Пользователь видит и использует только свои подключения из раздела `brokers`.
+- `token + secret` никогда не вводятся в runtime-конфиге провайдера.
+- Учетные данные берутся из `brokerCredentials`, связанного с выбранным `broker`.
+- Перед обращением к провайдеру выполняется `BrokerAccessService::assertUserCanUseBroker(...)`.
 
 ## Паттерны проектирования
 
@@ -107,9 +135,9 @@
 ### Вариант 1 (рекомендуемый): Redis TTL
 
 - ключи вида:
-  - `broker:{provider}:{env}:account:{id}:portfolio`
-  - `broker:{provider}:{env}:account:{id}:positions`
-  - `broker:{provider}:{env}:account:{id}:operations:{from}:{to}`
+  - `broker:{provider}:{env}:profile:{profileId}:broker:{brokerId}:account:{id}:portfolio`
+  - `broker:{provider}:{env}:profile:{profileId}:broker:{brokerId}:account:{id}:positions`
+  - `broker:{provider}:{env}:profile:{profileId}:broker:{brokerId}:account:{id}:operations:{from}:{to}`
 - TTL 30-120 секунд (подбирается по нагрузке).
 - Быстрое чтение в MoonShine, снижение числа запросов к шлюзу.
 
@@ -127,6 +155,11 @@
 
 ```mermaid
 classDiagram
+    class User
+    class Profile
+    class Broker
+    class BrokerCredential
+
     class BrokerGatewayProviderInterface {
       <<interface>>
       +getName(): string
@@ -138,13 +171,26 @@ classDiagram
     }
 
     class BrokerGatewayProviderFactory {
-      +make(providerCode, environment): BrokerGatewayProviderInterface
+      +makeForBroker(broker, user): BrokerGatewayProviderInterface
       +supportedProviders(): array
+    }
+
+    class BrokerAccessService {
+      +assertUserCanUseBroker(user, broker): void
+      +brokersForUser(user): Collection
+    }
+
+    class BrokerCredentialResolver {
+      +resolveActive(broker): BrokerCredential
+      +resolveForEnvironment(broker, env): BrokerCredential
+      +decryptToken(credential): string
+      +decryptSecret(credential): string
     }
 
     class TBankProvider {
       +getName(): string
       +getEnvironment(): string
+      +getCredentialFingerprint(): string
       +portfolio(): PortfolioServiceInterface
       +positions(): PositionsServiceInterface
       +operations(): OperationsServiceInterface
@@ -169,10 +215,17 @@ classDiagram
       +invalidateAccount(...)
     }
 
+    User "1" --> "*" Profile
+    Profile "1" --> "*" Broker
+    Broker "1" --> "*" BrokerCredential
+
     BrokerGatewayProviderFactory --> BrokerGatewayProviderInterface
+    BrokerGatewayProviderFactory --> BrokerAccessService
+    BrokerGatewayProviderFactory --> BrokerCredentialResolver
     BrokerGatewayProviderInterface <|.. TBankProvider
     TBankProvider --> TBankOperationsClient
     TBankProvider --> PortfolioCacheRepository
+    TBankProvider --> BrokerCredential
 ```
 
 ## C4 (Container)
@@ -181,10 +234,14 @@ classDiagram
 flowchart LR
     U["оператор"] --> M["MoonShine Admin UI"]
     M --> B["Laravel Backend"]
+    B --> A["BrokerAccessService"]
     B --> F["BrokerGatewayProviderFactory"]
+    F --> CR["BrokerCredentialResolver"]
+    CR --> BC[("brokerCredentials")]
     F --> T["TBankProvider"]
     T --> O["TBankOperationsClient (REST/gRPC)"]
     O --> G["T-Bank Gateway API"]
+    B --> BR[("brokers")]
     B --> C["PortfolioCacheRepository"]
     C --> R[(Redis)]
     B --> D[(PostgreSQL)]

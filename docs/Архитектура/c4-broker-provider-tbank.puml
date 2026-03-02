@@ -13,19 +13,27 @@ PERSON "оператор" as User
 
 CONTAINER "MoonShine Admin UI" as MoonShine
 CONTAINER "Laravel Backend" as Backend
+CONTAINER "BrokerAccessService" as AccessService
 CONTAINER "BrokerGatewayProviderFactory" as Factory
+CONTAINER "BrokerCredentialResolver" as CredentialResolver
 CONTAINER "TBankProvider" as TBankProvider
 CONTAINER "TBankOperationsClient (REST/gRPC)" as OpsClient
 CONTAINER "PortfolioCacheRepository" as CacheRepo
 database "Redis" as Redis
 database "PostgreSQL" as Db
+database "brokers" as BrokersTable
+database "brokerCredentials" as BrokerCredentialsTable
 CONTAINER "T-Bank Gateway API" as Gateway
 
 User --> MoonShine : Работает с кабинетами и портфелями
 MoonShine --> Backend : HTTP
 
+Backend --> AccessService : Validate ownership of broker
+AccessService --> BrokersTable : Read available brokers for user profile
 Backend --> Factory : Resolve provider
-Factory --> TBankProvider : Create provider by code/env
+Factory --> CredentialResolver : Resolve credentials for selected broker
+CredentialResolver --> BrokerCredentialsTable : Load token + secret
+Factory --> TBankProvider : Create provider by broker/env
 TBankProvider --> OpsClient : Portfolio/Positions/Operations
 OpsClient --> Gateway : API calls
 
@@ -37,6 +45,11 @@ note right of TBankProvider
 Окружения:
 - prod
 - sandbox
+end note
+
+note right of BrokerCredentialsTable
+Секреты не хранятся в runtime-конфиге.
+token/secret берутся из brokerCredentials.
 end note
 
 @enduml

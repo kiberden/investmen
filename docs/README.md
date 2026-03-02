@@ -4,9 +4,9 @@
 
 ## Разделы
 
-- [[general/overview|Общее]]
-- [[architecture/overview|Архитектура]]
-- [[database/overview|База]]
+- [[Основное/overview|Общее]]
+- [[Архитектура/overview|Архитектура]]
+- [[База данных/overview|База]]
 
 ## Что удалено как неактуальное
 
