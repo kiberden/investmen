@@ -1,0 +1,42 @@
+@startuml C4 Broker Provider TBank
+
+title C4: Provider-based integration with T-Bank (initial scope)
+
+!define PERSON class
+!define CONTAINER class
+
+skinparam shadowing false
+skinparam monochrome true
+skinparam packageStyle rectangle
+
+PERSON "оператор" as User
+
+CONTAINER "MoonShine Admin UI" as MoonShine
+CONTAINER "Laravel Backend" as Backend
+CONTAINER "BrokerGatewayProviderFactory" as Factory
+CONTAINER "TBankProvider" as TBankProvider
+CONTAINER "TBankOperationsClient (REST/gRPC)" as OpsClient
+CONTAINER "PortfolioCacheRepository" as CacheRepo
+database "Redis" as Redis
+database "PostgreSQL" as Db
+CONTAINER "T-Bank Gateway API" as Gateway
+
+User --> MoonShine : Работает с кабинетами и портфелями
+MoonShine --> Backend : HTTP
+
+Backend --> Factory : Resolve provider
+Factory --> TBankProvider : Create provider by code/env
+TBankProvider --> OpsClient : Portfolio/Positions/Operations
+OpsClient --> Gateway : API calls
+
+Backend --> CacheRepo : Read/write short-term data
+CacheRepo --> Redis : TTL cache
+Backend --> Db : Persist snapshots and metadata
+
+note right of TBankProvider
+Окружения:
+- prod
+- sandbox
+end note
+
+@enduml
