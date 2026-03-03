@@ -9,6 +9,9 @@ use App\Models\BrokerCredential;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Экшн по синхронизации данных при сохранении Брокера - часть данных пишем в связную таблицу broker_credentials.
+ */
 final class SyncBrokerCredentialAction
 {
     /**
@@ -19,7 +22,7 @@ final class SyncBrokerCredentialAction
         /** @var list<string> $fillable */
         $fillable = ( new BrokerCredential )->getFillable();
 
-        return array_values(array_intersect($fillable, ['token', 'secret', 'expire_at']));
+        return array_values(array_intersect($fillable, ['token', 'expire_at']));
     }
 
     public function execute(Broker $broker, Request $request): void
@@ -33,7 +36,6 @@ final class SyncBrokerCredentialAction
         /** @var array<string, mixed> $validatedData */
         $validatedData = Validator::make($credentialData, [
             'token' => ['sometimes', 'string'],
-            'secret' => ['sometimes', 'string'],
             'expire_at' => ['sometimes', 'date'],
         ])->validate();
 
@@ -81,7 +83,6 @@ final class SyncBrokerCredentialAction
         return array_filter(
             [
                 'token' => $data['token'] ?? null,
-                'secret' => $data['secret'] ?? null,
                 'expire_at' => $data['expire_at'] ?? null,
             ],
             static fn(mixed $value): bool => $value !== null && $value !== '',

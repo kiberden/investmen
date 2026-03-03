@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,12 +12,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('broker_credentials', function (Blueprint $table) {
+        Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
-            $table->text('token');
-            $table->dateTime('expire_at')->nullable();
-            $table->foreignId('broker_id')->constrained('brokers');
-            $table->timestamps();
+            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
+            $table->string('name')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('updated_at')->nullable();
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('broker_credentials');
+        Schema::dropIfExists('portfolios');
     }
 };

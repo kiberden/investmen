@@ -48,4 +48,12 @@ class Broker extends Model
     {
         return $this->hasOne(BrokerCredential::class);
     }
+
+    /**
+     * Получить аккаунт брокера.
+     */
+    public function account(): HasOne
+    {
+        return $this->hasOne(Account::class);
+    }
 }

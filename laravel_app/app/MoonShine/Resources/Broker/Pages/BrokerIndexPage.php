@@ -8,10 +8,16 @@ use App\Models\User;
 use App\MoonShine\Resources\Broker\BrokerResource;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
+use MoonShine\Contracts\UI\ActionButtonContract;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Pages\Crud\IndexPage;
+use MoonShine\Support\Enums\Ability;
+use MoonShine\Support\Enums\Action;
+use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\ActionButton;
 use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\ID;
@@ -32,7 +38,6 @@ final class BrokerIndexPage extends IndexPage
         return [
             ID::make()->sortable(),
             Text::make('Профиль', 'profile_name')->sortable(),
-            Number::make('Капитал', 'total_capital')->sortable(),
             Switcher::make('Активен', 'is_active'),
             Text::make('Доступы', 'credential.id')->changePreview(static fn(mixed $value, Text $field): string => $value
                 ? 'Настроены'
@@ -56,6 +61,29 @@ final class BrokerIndexPage extends IndexPage
 
             Switcher::make('Активен', 'is_active'),
         ];
+    }
+
+    /**
+     * Кастомная кнопка перехода к портфелям.
+     * 
+     * @return ListOf<ActionButtonContract>
+     */
+    protected function buttons(): ListOf
+    {
+        $managementButton = ActionButton::make(
+            'К портфелям',
+            fn (mixed $item, ?DataWrapperContract $data): string => $this->getResource()->getFormPageUrl($data?->getKey()),
+        )
+            ->icon('cog-6-tooth')
+            ->primary()
+            ->canSee(
+                fn (mixed $item, ?DataWrapperContract $data): bool => $data?->getKey() !== null
+                    && $this->getResource()->hasAction(Action::UPDATE)
+                    && $this->getResource()->setItem($item)->can(Ability::UPDATE),
+            )
+            ->showInLine();
+
+        return parent::buttons()->prepend($managementButton);
     }
 
     /**

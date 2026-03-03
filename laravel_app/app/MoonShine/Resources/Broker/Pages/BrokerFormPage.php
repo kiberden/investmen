@@ -29,9 +29,9 @@ final class BrokerFormPage extends FormPage
     protected function fields(): iterable
     {
         $broker = $this->getItem();
-        $hasCredential = $broker->credential !== null;
-        $expireAtDefault = $broker->credential?->expire_at instanceof \DateTimeInterface
-            ? $broker->credential->expire_at->format('Y-m-d H:i:s')
+        $hasCredential = $broker?->credential !== null;
+        $expireAtDefault = $broker?->credential?->expire_at instanceof \DateTimeInterface
+            ? $broker?->credential->expire_at->format('Y-m-d H:i:s')
             : null;
 
         return [
@@ -40,9 +40,6 @@ final class BrokerFormPage extends FormPage
                 Text::make('Название профиля', 'profile_name')->required(),
                 Password::make('Token', 'token')->hint(
                     $hasCredential ? 'Токен сохранен. Оставьте пустым, чтобы не изменять.' : '',
-                ),
-                Password::make('Secret', 'secret')->hint(
-                    $hasCredential ? 'Секрет сохранен. Оставьте пустым, чтобы не изменять.' : '',
                 ),
                 Date::make('Активен до', 'expire_at')->default($expireAtDefault),
                 Textarea::make('Описание', 'description')->nullable(),
@@ -65,10 +62,6 @@ final class BrokerFormPage extends FormPage
             'description' => ['nullable', 'string'],
             'is_active' => ['boolean'],
             'token' => [
-                ...( $item->getKey() === null ? ['required'] : ['nullable'] ),
-                'string',
-            ],
-            'secret' => [
                 ...( $item->getKey() === null ? ['required'] : ['nullable'] ),
                 'string',
             ],

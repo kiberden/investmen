@@ -7,6 +7,7 @@ namespace App\MoonShine\Resources\MoonShineUser\Pages;
 use App\Models\User as MoonshineUser;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
+use App\Services\BrokerGateway\Profiles\BrokerProfileService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
@@ -16,9 +17,12 @@ use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Models\MoonshineUserRole;
 use MoonShine\Laravel\Pages\Crud\FormPage;
+use MoonShine\UI\Components\Alert;
 use MoonShine\UI\Components\Collapse;
+use MoonShine\UI\Components\Heading;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Components\Layout\Flex;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Components\Tabs;
 use MoonShine\UI\Components\Tabs\Tab;
 use MoonShine\UI\Fields\Date;
@@ -28,6 +32,7 @@ use MoonShine\UI\Fields\Image;
 use MoonShine\UI\Fields\Password;
 use MoonShine\UI\Fields\PasswordRepeat;
 use MoonShine\UI\Fields\Text;
+use Throwable;
 
 /**
  * @extends FormPage<MoonShineUserResource, MoonshineUser>
@@ -82,8 +87,56 @@ final class MoonShineUserFormPage extends FormPage
                             )->customAttributes(['autocomplete' => 'confirm-password'])->eye(),
                         ])->icon('lock-closed'),
                     ])->icon('lock-closed'),
+                    Tab::make('Профили брокера', $this->brokerProfilesTab()),
                 ]),
             ]),
+        ];
+    }
+
+    /**
+     * @return list<ComponentContract>
+     */
+    private function brokerProfilesTab(): array
+    {
+        /** @var MoonshineUser|null $user */
+        $user = $this->getItem();
+
+        if (! $user instanceof MoonshineUser || $user->getKey() === null) {
+            return [
+                Alert::make(type: 'info')->content('Сохраните пользователя, чтобы загрузить профили брокера.'),
+            ];
+        }
+
+        try {
+            $profiles = app(BrokerProfileService::class)->profilesForUser($user);
+        } catch (Throwable $e) {
+            return [
+                Alert::make(type: 'warning')->content($e->getMessage()),
+            ];
+        }
+
+        if ($profiles === []) {
+            return [
+                Alert::make(type: 'info')->content('У пользователя нет подключенных брокерских профилей.'),
+            ];
+        }
+
+        return [
+            Heading::make('Профили, полученные из REST брокера'),
+            TableBuilder::make([
+                Text::make('Профиль в системе', 'broker_profile_name'),
+                Text::make('Broker ID', 'broker_id'),
+                Text::make('Провайдер', 'provider'),
+                Text::make('Окружение', 'environment'),
+                Text::make('Account ID', 'account_id'),
+                Text::make('Название', 'account_name'),
+                Text::make('Тип', 'account_type'),
+                Text::make('Статус', 'account_status'),
+                Text::make('Доступ', 'access_level'),
+                Text::make('Открыт', 'opened_at'),
+                Text::make('Закрыт', 'closed_at'),
+                Text::make('Ошибка', 'error'),
+            ], $profiles),
         ];
     }
 

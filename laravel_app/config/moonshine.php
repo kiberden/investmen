@@ -18,7 +18,6 @@ use MoonShine\Laravel\Layouts\AppLayout;
 use MoonShine\Laravel\Pages\Dashboard;
 use MoonShine\Laravel\Pages\ErrorPage;
 use MoonShine\Laravel\Pages\LoginPage;
-use MoonShine\Laravel\Pages\ProfilePage;
 
 return [
     'title' => env('MOONSHINE_TITLE', 'Investmen'),
@@ -95,7 +94,7 @@ return [
 
     'pages' => [
         'dashboard' => App\MoonShine\Pages\Dashboard::class,
-        'profile' => ProfilePage::class,
+        'profile' => App\MoonShine\Pages\ProfilePage::class,
         'login' => LoginPage::class,
         'error' => ErrorPage::class,
     ],

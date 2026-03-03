@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Account;
 use App\Models\Broker;
+use App\Models\Portfolio;
+use App\Observers\AccountObserver;
 use App\Observers\BrokerObserver;
+use App\Observers\PortfolioObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -27,7 +31,9 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Account::observe(AccountObserver::class);
         Broker::observe(BrokerObserver::class);
+        Portfolio::observe(PortfolioObserver::class);
     }
 
     /**

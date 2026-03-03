@@ -9,8 +9,10 @@ use App\Models\Broker;
 use App\MoonShine\Resources\Broker\Pages\BrokerFormPage;
 use App\MoonShine\Resources\Broker\Pages\BrokerIndexPage;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use MoonShine\Contracts\Core\DependencyInjection\FieldsContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -86,16 +88,39 @@ class BrokerResource extends ModelResource
             && \in_array($element->getColumn(), SyncBrokerCredentialAction::credentialColumns(), true),
         );
 
-        return DB::transaction(function () use (
-            $item,
-            $brokerFields,
-            $syncBrokerCredentialAction,
-        ): DataWrapperContract {
-            $savedItem = parent::save($item, $brokerFields);
+        try {
+            return DB::transaction(function () use (
+                $item,
+                $brokerFields,
+                $syncBrokerCredentialAction,
+            ): DataWrapperContract {
+                $savedItem = parent::save($item, $brokerFields);
 
-            $syncBrokerCredentialAction->execute($savedItem->getOriginal(), request());
+                $syncBrokerCredentialAction->execute($savedItem->getOriginal(), request());
 
-            return $savedItem;
-        });
+                return $savedItem;
+            });
+        } catch (QueryException $e) {
+            if ($this->isTokenUniqueConstraintViolation($e)) {
+                throw ValidationException::withMessages([
+                    'token' => 'Такой токен уже используется в другом профиле.',
+                ]);
+            }
+
+            throw $e;
+        }
+    }
+
+    private function isTokenUniqueConstraintViolation(QueryException $e): bool
+    {
+        $sqlState = data_get($e->errorInfo, 0);
+        $constraintName = data_get($e->errorInfo, 2);
+
+        if ($sqlState !== '23505') {
+            return false;
+        }
+
+        return \is_string($constraintName)
+            && str_contains($constraintName, 'broker_credentials_token_unique');
     }
 }
