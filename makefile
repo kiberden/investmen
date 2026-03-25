@@ -61,3 +61,6 @@ mago_baseline_lint:
 
 mago_baseline_analyze:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) vendor/bin/mago analyze --generate-baseline --baseline analysis-baseline.toml
+
+test_unit:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan test --testsuite=Unit

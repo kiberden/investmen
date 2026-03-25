@@ -7,6 +7,7 @@ namespace App\Services\BrokerGateway\Profiles;
 use App\Http\Resources\BrokerProfileResource;
 use App\Models\Broker;
 use App\Models\User;
+use App\Modules\BrokerGateway\Core\BrokerProviderCodeResolver;
 use App\Services\BrokerGateway\Credentials\BrokerCredentialResolver;
 use App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory;
 use RuntimeException;
@@ -16,6 +17,7 @@ final class BrokerProfileService
 {
     public function __construct(
         private readonly BrokerGatewayProviderFactory $providerFactory,
+        private readonly BrokerProviderCodeResolver $providerCodeResolver,
         private readonly BrokerCredentialResolver $credentialResolver,
         private readonly BrokerProfileRestClient $brokerProfileRestClient,
     ) {}
@@ -28,10 +30,9 @@ final class BrokerProfileService
         /** @var list<array<string, mixed>> $profiles */
         $profiles = [];
 
-        $providerCode = $this->resolveDefaultProviderCode();
-
         /** @var Broker $broker */
         foreach ($user->brokers()->orderBy('id')->get() as $broker) {
+            $providerCode = $this->providerCodeResolver->resolveForBroker($broker);
             $profiles = [
                 ...$profiles,
                 ...$this->profilesForBroker($broker, $providerCode),
@@ -96,18 +97,6 @@ final class BrokerProfileService
         }
 
         return $result;
-    }
-
-    private function resolveDefaultProviderCode(): string
-    {
-        $supportedProviders = $this->providerFactory->supportedProviders();
-        $providerCode = $supportedProviders[0] ?? null;
-
-        if (! \is_string($providerCode) || $providerCode === '') {
-            throw new RuntimeException('No broker providers configured.');
-        }
-
-        return $providerCode;
     }
 
     private function messageForException(Throwable $e): string

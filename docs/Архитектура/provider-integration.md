@@ -32,14 +32,26 @@
 
 ## Структура компонентов
 
+- `config/broker-systems.php` + `config/broker-systems/*.php`
+  - список доступных систем и их окружений;
+  - включение через `BROKER_SYSTEMS_ENABLED`.
 - `config/broker-providers.php`
   - настройки провайдеров и окружений (`prod` / `sandbox`);
   - endpoint, timeout, app-name;
+  - агрегирует только включенные системы;
   - токены/секреты в конфиге не храним.
+- `App\Modules\BrokerGateway\Core\BrokerProviderRegistry`
+  - реестр провайдеров по `code()`.
+- `App\Modules\BrokerGateway\Core\BrokerProviderCodeResolver`
+  - резолв кода провайдера из модели/конфига без хардкода.
 - `App\Providers\BrokerGatewayServiceProvider`
   - регистрация фабрики и реализаций.
+- `App\Observers\BrokerObserver`
+  - после сохранения брокера синхронизирует credential через action (UI вызывает только action-контур).
 - `App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory`
-  - выбор нужного провайдера по `broker` + окружению.
+  - legacy-фабрика конфигурации (разрешена только как adapter-граница).
+- `App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Adapters\LegacyTBankProviderConfigAdapter`
+  - явная adapter-граница к legacy factory.
 - `App\Services\BrokerGateway\Access\BrokerAccessService`
   - проверка, что пользователь имеет доступ только к своим `brokers`.
 - `App\Services\BrokerGateway\Credentials\BrokerCredentialResolver`
@@ -113,6 +125,25 @@
 - `getPositions(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): ?PositionsDto`
 - `invalidateAccount(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): void`
 
+### `AccountAggregateServiceInterface` (MVP-1)
+
+- `getAccountSummary(Broker $broker, string $accountId): AccountSummaryDto`
+- `getAllAccountsSummary(Broker $broker): AccountsAggregateDto`
+
+Назначение:
+- объединяет данные `portfolio + positions` в нормализованный view-model для UI;
+- формирует агрегаты по всем счетам под токеном пользователя.
+
+### `AccountSnapshotRepositoryInterface` (MVP-2)
+
+- `store(AccountSnapshotDto $snapshot): void`
+- `latest(string $provider, string $environment, int $profileId, int $brokerId, string $accountId): ?AccountSnapshotDto`
+- `range(string $provider, string $environment, int $profileId, int $brokerId, string $accountId, \DateTimeInterface $from, \DateTimeInterface $to): array`
+
+Назначение:
+- хранение time-series срезов для dashboard динамики роста;
+- источник данных для графиков по каждому счету.
+
 ## Модель доступа и хранения секретов
 
 - `Broker` принадлежит профилю пользователя в админке.
@@ -140,16 +171,45 @@
   - `broker:{provider}:{env}:profile:{profileId}:broker:{brokerId}:account:{id}:operations:{from}:{to}`
 - TTL 30-120 секунд (подбирается по нагрузке).
 - Быстрое чтение в MoonShine, снижение числа запросов к шлюзу.
+- Ограничение: Redis TTL хранит только текущий срез, не подходит как источник исторической динамики.
 
 ### Вариант 2: Snapshot в PostgreSQL
 
 - Таблицы с `expires_at` и периодической очисткой.
 - Удобно для аудита, но выше стоимость записи.
+- Подходит как источник данных для графиков роста и исторических сравнений.
 
 ### Вариант 3: Гибрид
 
 - Redis как primary cache.
 - PostgreSQL как fallback snapshot.
+- Рекомендуется для MVP-2: быстрый current-state из Redis и исторические ряды из snapshot-таблиц.
+
+## Источник данных для dashboard динамики
+
+### MVP-1
+- Доступен только текущий срез (current-state) через `portfolio/positions` и Redis TTL.
+- Графики динамики роста не включаются в scope MVP-1.
+
+### MVP-2
+- Источник графиков: `AccountSnapshotRepositoryInterface` + периодическое сохранение срезов.
+- Минимальная частота snapshot для графиков: каждые 5-15 минут (настраивается).
+- Pipeline: Scheduler -> SnapshotJob -> SnapshotRepository -> Dashboard query model.
+
+## Обязательный quality gate перед финализацией
+
+- Любые изменения в PHP-коде считаются завершенными только после синтаксической проверки `php -l` по всем измененным PHP-файлам.
+- Проверка соответствия современным стандартам PHP выполняется через `mago`, запуск только через make-цели проекта.
+- Минимальный обязательный запуск:
+
+```bash
+make mago_ci_check
+```
+
+## Статус MVP-1 stream
+
+- Для MVP-1 используется безопасный fallback: `TBankStreamClient` работает как no-op и логирует пропуск.
+- Команда `broker-gateway:stream` не должна ломать flow, даже пока live-stream не реализован.
 
 ## Диаграмма классов
 

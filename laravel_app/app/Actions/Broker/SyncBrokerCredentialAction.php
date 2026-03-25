@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Validator;
  */
 final class SyncBrokerCredentialAction
 {
+    public function __construct(
+        private readonly SyncBrokerAccountAction $syncBrokerAccountAction,
+    ) {}
+
     /**
      * @return list<string>
      */
@@ -44,6 +48,10 @@ final class SyncBrokerCredentialAction
         }
 
         $broker->credential()->updateOrCreate([], $validatedData);
+
+        if (\array_key_exists('token', $validatedData)) {
+            $this->syncBrokerAccountAction->execute($broker);
+        }
     }
 
     /**

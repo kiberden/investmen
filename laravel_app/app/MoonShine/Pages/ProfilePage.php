@@ -32,9 +32,11 @@ final class ProfilePage extends \MoonShine\Laravel\Pages\ProfilePage
     {
         $user = MoonShineAuth::getGuard()->user();
 
-        if (! $user instanceof User) {
+        if (!$user instanceof User) {
             return Box::make([
-                Alert::make(type: 'warning')->content('Не удалось определить пользователя для загрузки данных брокера.'),
+                Alert::make(type: 'warning')->content(
+                    'Не удалось определить пользователя для загрузки данных брокера.',
+                ),
             ]);
         }
 

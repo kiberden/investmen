@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Providers;
 
+use App\MoonShine\Resources\Account\AccountResource;
 use App\MoonShine\Resources\Broker\BrokerResource;
 use App\MoonShine\Resources\MoonShineUser\MoonShineUserResource;
 use App\MoonShine\Resources\MoonShineUserRole\MoonShineUserRoleResource;
@@ -23,6 +24,7 @@ class MoonShineServiceProvider extends ServiceProvider
             MoonShineUserResource::class,
             MoonShineUserRoleResource::class,
             BrokerResource::class,
+            AccountResource::class,
         ])->pages([
             ...$core->getConfig()->getPages(),
         ]);

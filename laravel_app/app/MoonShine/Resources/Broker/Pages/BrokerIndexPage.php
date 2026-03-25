@@ -65,21 +65,23 @@ final class BrokerIndexPage extends IndexPage
 
     /**
      * Кастомная кнопка перехода к портфелям.
-     * 
+     *
      * @return ListOf<ActionButtonContract>
      */
     protected function buttons(): ListOf
     {
-        $managementButton = ActionButton::make(
-            'К портфелям',
-            fn (mixed $item, ?DataWrapperContract $data): string => $this->getResource()->getFormPageUrl($data?->getKey()),
-        )
+        $managementButton = ActionButton::make('К портфелям', fn(
+            mixed $item,
+            ?DataWrapperContract $data,
+        ): string => $this->getResource()->getFormPageUrl($data?->getKey()))
             ->icon('cog-6-tooth')
             ->primary()
             ->canSee(
-                fn (mixed $item, ?DataWrapperContract $data): bool => $data?->getKey() !== null
+                fn(mixed $item, ?DataWrapperContract $data): bool => (
+                    $data?->getKey() !== null
                     && $this->getResource()->hasAction(Action::UPDATE)
-                    && $this->getResource()->setItem($item)->can(Ability::UPDATE),
+                    && $this->getResource()->setItem($item)->can(Ability::UPDATE)
+                ),
             )
             ->showInLine();
 

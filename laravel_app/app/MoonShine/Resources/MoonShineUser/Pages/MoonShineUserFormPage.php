@@ -101,7 +101,7 @@ final class MoonShineUserFormPage extends FormPage
         /** @var MoonshineUser|null $user */
         $user = $this->getItem();
 
-        if (! $user instanceof MoonshineUser || $user->getKey() === null) {
+        if (!$user instanceof MoonshineUser || $user->getKey() === null) {
             return [
                 Alert::make(type: 'info')->content('Сохраните пользователя, чтобы загрузить профили брокера.'),
             ];

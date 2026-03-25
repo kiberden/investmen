@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace App\Providers;
 
+use App\Modules\BrokerGateway\Core\BrokerProviderRegistry;
+use App\Modules\BrokerGateway\Providers\TBank\TBankModuleServiceProvider;
 use App\Services\BrokerGateway\Access\BrokerAccessService;
 use App\Services\BrokerGateway\Credentials\BrokerCredentialResolver;
 use App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory;
@@ -15,7 +17,9 @@ final class BrokerGatewayServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->mergeConfigFrom(config_path('broker-systems.php'), 'broker-systems');
         $this->mergeConfigFrom(config_path('broker-providers.php'), 'broker-providers');
+        $this->app->register(TBankModuleServiceProvider::class);
 
         $this->app->singleton(
             BrokerGatewayProviderFactory::class,
@@ -23,6 +27,13 @@ final class BrokerGatewayServiceProvider extends ServiceProvider
                 $container->make(Repository::class),
                 $container,
             ),
+        );
+
+        $this->app->singleton(
+            BrokerProviderRegistry::class,
+            fn(Container $container): BrokerProviderRegistry => new BrokerProviderRegistry($container->tagged(
+                'broker-gateway.providers',
+            )),
         );
 
         $this->app->singleton(BrokerAccessService::class);

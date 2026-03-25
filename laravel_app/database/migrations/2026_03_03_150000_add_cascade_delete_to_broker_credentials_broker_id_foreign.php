@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,10 +11,7 @@ return new class extends Migration {
     {
         Schema::table('broker_credentials', function (Blueprint $table): void {
             $table->dropForeign(['broker_id']);
-            $table->foreign('broker_id')
-                ->references('id')
-                ->on('brokers')
-                ->cascadeOnDelete();
+            $table->foreign('broker_id')->references('id')->on('brokers')->cascadeOnDelete();
         });
     }
 
@@ -22,9 +19,7 @@ return new class extends Migration {
     {
         Schema::table('broker_credentials', function (Blueprint $table): void {
             $table->dropForeign(['broker_id']);
-            $table->foreign('broker_id')
-                ->references('id')
-                ->on('brokers');
+            $table->foreign('broker_id')->references('id')->on('brokers');
         });
     }
 };
