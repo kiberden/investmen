@@ -19,10 +19,10 @@ down:
 restart_app:
 	@docker compose --env-file $(ENV_FILE) restart $(DOCKER_IMAGE)
 
-make_resource:
+resource:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan moonshine:resource
 
-make_user:
+user:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan moonshine:user
 
 migrate:
