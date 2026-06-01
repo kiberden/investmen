@@ -21,11 +21,12 @@ final class SyncTBankAccountActionTest extends TestCase
         config()->set('broker-providers.providers.tbank', [
             'driver' => 'tbank',
             'default_environment' => 'sandbox',
-            'environments' => [
+            'default_connection_key' => 'sandbox',
+            'connection_keys' => [
                 'sandbox' => [
+                    'provider' => 'tbank',
                     'base_url' => 'https://example.test/rest',
                     'timeout' => 10,
-                    'app_name' => 'investman-test',
                 ],
             ],
         ]);
@@ -35,11 +36,11 @@ final class SyncTBankAccountActionTest extends TestCase
         ]);
 
         $user = User::factory()->create();
-        $broker = Broker::query()->create([
+        $broker = Broker::withoutEvents(static fn(): Broker => Broker::query()->forceCreate([
             'user_id' => (int) $user->getKey(),
             'profile_name' => 'Fallback profile',
             'description' => null,
-        ]);
+        ]));
         $token = hash('sha256', (string) microtime(true));
 
         BrokerCredential::query()->create([
@@ -58,11 +59,12 @@ final class SyncTBankAccountActionTest extends TestCase
         config()->set('broker-providers.providers.tbank', [
             'driver' => 'tbank',
             'default_environment' => 'sandbox',
-            'environments' => [
+            'default_connection_key' => 'sandbox',
+            'connection_keys' => [
                 'sandbox' => [
+                    'provider' => 'tbank',
                     'base_url' => 'https://example.test/rest',
                     'timeout' => 10,
-                    'app_name' => 'investman-test',
                 ],
             ],
         ]);
@@ -72,11 +74,11 @@ final class SyncTBankAccountActionTest extends TestCase
         ]);
 
         $user = User::factory()->create();
-        $broker = Broker::query()->create([
+        $broker = Broker::withoutEvents(static fn(): Broker => Broker::query()->forceCreate([
             'user_id' => (int) $user->getKey(),
             'profile_name' => 'Profile fallback',
             'description' => null,
-        ]);
+        ]));
         $token = hash('sha256', (string) microtime(true));
 
         BrokerCredential::query()->create([

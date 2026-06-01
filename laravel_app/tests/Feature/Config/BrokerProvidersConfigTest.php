@@ -25,28 +25,105 @@ final class BrokerProvidersConfigTest extends TestCase
         $this->assertIsArray($tbankProvider);
         $this->assertSame('tbank', $tbankProvider['driver']);
         $this->assertArrayHasKey('default_environment', $tbankProvider);
-        $this->assertArrayHasKey('environments', $tbankProvider);
+        $this->assertArrayHasKey('default_connection_key', $tbankProvider);
+        $this->assertArrayHasKey('connection_keys', $tbankProvider);
     }
 
-    public function test_tbank_environments_are_configured(): void
+    public function test_tbank_connection_keys_are_configured_with_minimal_schema(): void
     {
-        $environments = config('broker-providers.providers.tbank.environments');
+        $connectionKeys = config('broker-providers.providers.tbank.connection_keys');
 
-        $this->assertIsArray($environments);
-        $this->assertArrayHasKey('prod', $environments);
-        $this->assertArrayHasKey('sandbox', $environments);
+        $this->assertIsArray($connectionKeys);
+        $this->assertArrayHasKey('prod', $connectionKeys);
+        $this->assertArrayHasKey('sandbox', $connectionKeys);
 
-        foreach (['prod', 'sandbox'] as $environment) {
-            $this->assertArrayHasKey('base_url', $environments[$environment]);
-            $this->assertArrayHasKey('timeout', $environments[$environment]);
-            $this->assertArrayHasKey('app_name', $environments[$environment]);
+        foreach (['prod', 'sandbox'] as $connectionKey) {
+            $this->assertArrayHasKey('base_url', $connectionKeys[$connectionKey]);
+            $this->assertArrayHasKey('timeout', $connectionKeys[$connectionKey]);
+            $this->assertArrayHasKey('provider', $connectionKeys[$connectionKey]);
 
-            $this->assertIsString($environments[$environment]['base_url']);
-            $this->assertNotSame('', $environments[$environment]['base_url']);
-            $this->assertIsInt($environments[$environment]['timeout']);
-            $this->assertGreaterThan(0, $environments[$environment]['timeout']);
-            $this->assertIsString($environments[$environment]['app_name']);
-            $this->assertNotSame('', $environments[$environment]['app_name']);
+            $this->assertIsString($connectionKeys[$connectionKey]['base_url']);
+            $this->assertNotSame('', $connectionKeys[$connectionKey]['base_url']);
+            $this->assertIsInt($connectionKeys[$connectionKey]['timeout']);
+            $this->assertGreaterThan(0, $connectionKeys[$connectionKey]['timeout']);
+
+            $this->assertArrayNotHasKey('app_name', $connectionKeys[$connectionKey]);
+            $this->assertArrayNotHasKey('environment', $connectionKeys[$connectionKey]);
+            $this->assertArrayNotHasKey('label', $connectionKeys[$connectionKey]);
+        }
+    }
+
+    public function test_connection_keys_are_aggregated_for_enabled_providers(): void
+    {
+        $connectionKeys = config('broker-providers.connection_keys');
+
+        $this->assertIsArray($connectionKeys);
+        $this->assertArrayHasKey('prod', $connectionKeys);
+        $this->assertArrayHasKey('sandbox', $connectionKeys);
+
+        foreach (['prod', 'sandbox'] as $connectionKey) {
+            $this->assertSame(
+                'tbank',
+                $connectionKeys[$connectionKey]['provider'] ?? null,
+                "Connection key [$connectionKey] must be linked to tbank provider.",
+            );
+
+            $this->assertArrayHasKey('base_url', $connectionKeys[$connectionKey]);
+            $this->assertArrayHasKey('timeout', $connectionKeys[$connectionKey]);
+        }
+    }
+
+    public function test_default_environment_uses_sandbox_for_non_production_app_env(): void
+    {
+        $config = config('broker-providers');
+
+        $this->assertIsArray($config);
+        $this->assertSame('sandbox', $config['default_environment'] ?? null);
+    }
+
+    public function test_default_environment_uses_prod_for_production_app_env(): void
+    {
+        $config = $this->loadBrokerProvidersConfigForAppEnv('production');
+
+        $this->assertSame('prod', $config['default_environment'] ?? null);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function loadBrokerProvidersConfigForAppEnv(string $appEnv): array
+    {
+        $originalGetEnv = getenv('APP_ENV');
+        $originalServerEnv = $_SERVER['APP_ENV'] ?? null;
+        $originalPhpEnv = $_ENV['APP_ENV'] ?? null;
+
+        putenv("APP_ENV={$appEnv}");
+        $_SERVER['APP_ENV'] = $appEnv;
+        $_ENV['APP_ENV'] = $appEnv;
+
+        try {
+            /** @var array<string, mixed> $config */
+            $config = require base_path('config/broker-providers.php');
+
+            return $config;
+        } finally {
+            if ($originalGetEnv === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv("APP_ENV={$originalGetEnv}");
+            }
+
+            if ($originalServerEnv === null) {
+                unset($_SERVER['APP_ENV']);
+            } else {
+                $_SERVER['APP_ENV'] = $originalServerEnv;
+            }
+
+            if ($originalPhpEnv === null) {
+                unset($_ENV['APP_ENV']);
+            } else {
+                $_ENV['APP_ENV'] = $originalPhpEnv;
+            }
         }
     }
 }

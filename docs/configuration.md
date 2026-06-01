@@ -31,6 +31,14 @@ cp laravel_app/.env.example laravel_app/.env
 - `docker-compose.yml` — описания сервисов, сетей, healthcheck.
 - `.ai-factory/config.yaml` — язык и настройки AI Factory-воркфлоу.
 
+## Broker Connection Keys
+
+`laravel_app/config/broker-systems/tbank.php` содержит секцию `connection_keys` с ключами подключения `prod` и `sandbox`.
+
+- `connection key` хранит инфраструктурные параметры (`provider`, `base_url`, `timeout`) и используется как единый источник настроек подключения.
+- Пользовательский API-токен **не** хранится в config и продолжает жить в `broker_credentials`.
+- Дефолтный ключ вычисляется из `APP_ENV`: `production -> prod`, любое другое значение -> `sandbox`.
+
 ## Частые сценарии
 
 ```bash
