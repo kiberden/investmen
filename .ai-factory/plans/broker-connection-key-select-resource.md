@@ -31,7 +31,7 @@
 
 ### Фаза 1 - Модель данных для провайдера
 
-### [ ] Task 1: Добавить поле provider_code в таблицу brokers
+### [x] Task 1: Добавить поле provider_code в таблицу brokers
 - Deliverable: в БД появляется явное поле провайдера подключения, существующие записи получают валидное fallback-значение.
 - Файлы: `laravel_app/database/migrations/*_add_provider_code_to_brokers_table.php`.
 - Что сделать:
@@ -43,7 +43,7 @@
   - ошибки миграции оставлять на стандартных exception уровня ERROR.
 - Dependency notes: базовая задача, блокирует Task 2-6.
 
-### [ ] Task 2: Обновить модель Broker под поле provider_code
+### [x] Task 2: Обновить модель Broker под поле provider_code
 - Deliverable: `Broker` корректно принимает и сохраняет `provider_code` через mass-assignment.
 - Файлы: `laravel_app/app/Models/Broker.php`.
 - Что сделать:
@@ -56,7 +56,7 @@
 
 ### Фаза 2 - UI и валидация в админке
 
-### [ ] Task 3: Добавить select provider_code в форму брокера MoonShine
+### [x] Task 3: Добавить select provider_code в форму брокера MoonShine
 - Deliverable: в `BrokerFormPage` пользователь выбирает провайдера подключения.
 - Файлы: `laravel_app/app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php`.
 - Что сделать:
@@ -71,7 +71,7 @@
   - ошибки валидации/формы оставлять через стандартный Laravel/MoonShine поток (WARN на уровне UI-валидации не логируется отдельно).
 - Dependency notes: зависит от Task 2.
 
-### [ ] Task 4: Добавить правила валидации provider_code в форме
+### [x] Task 4: Добавить правила валидации provider_code в форме
 - Deliverable: форма принимает только валидные значения провайдера.
 - Файлы: `laravel_app/app/MoonShine/Resources/Broker/Pages/BrokerFormPage.php`.
 - Что сделать:
@@ -85,7 +85,7 @@
 
 ### Фаза 3 - Тестовый контракт
 
-### [ ] Task 5: Добавить feature-тесты на сохранение и валидацию provider_code
+### [x] Task 5: Добавить feature-тесты на сохранение и валидацию provider_code
 - Deliverable: тесты подтверждают корректное сохранение валидного `provider_code` и отклонение невалидных данных.
 - Файлы: `laravel_app/tests/Feature/Broker/BrokerProviderCodePersistenceTest.php` (new), `laravel_app/tests/Feature/Broker/BrokerProviderCodeValidationTest.php` (new).
 - Что сделать:
@@ -98,7 +98,7 @@
   - assertion messages должны явно указывать нарушенный контракт поля.
 - Dependency notes: зависит от Task 1-4.
 
-### [ ] Task 6: Добавить регрессионный тест runtime-резолва provider_code из модели брокера
+### [x] Task 6: Добавить регрессионный тест runtime-резолва provider_code из модели брокера
 - Deliverable: регрессионный тест защищает текущий runtime-контракт, что `SyncBrokerAccountAction` использует provider из persisted `broker.provider_code`.
 - Файлы: `laravel_app/tests/Feature/Broker/SyncBrokerAccountActionTest.php`.
 - Что сделать:
@@ -110,7 +110,7 @@
   - assert-сообщения должны явно показывать, что нарушен runtime-резолв provider-кода.
 - Dependency notes: зависит от Task 2.
 
-### [ ] Task 7: Расширить тест агрегации конфигурации для provider select
+### [x] Task 7: Расширить тест агрегации конфигурации для provider select
 - Deliverable: тест подтверждает, что источник options провайдеров консистентен для UI-формы.
 - Файлы: `laravel_app/tests/Feature/Config/BrokerProvidersConfigTest.php`.
 - Что сделать:
@@ -123,7 +123,7 @@
 
 ### Фаза 4 - Документация и верификация
 
-### [ ] Task 8: Обновить документацию и прогнать целевые проверки
+### [x] Task 8: Обновить документацию и прогнать целевые проверки
 - Deliverable: документация отражает поле `provider_code` и правило определения environment через `APP_ENV`, а целевые тесты проходят.
 - Файлы: `docs/configuration.md`, при необходимости `docs/architecture.md`.
 - Что сделать:

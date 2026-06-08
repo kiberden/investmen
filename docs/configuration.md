@@ -39,6 +39,14 @@ cp laravel_app/.env.example laravel_app/.env
 - Пользовательский API-токен **не** хранится в config и продолжает жить в `broker_credentials`.
 - Дефолтный ключ вычисляется из `APP_ENV`: `production -> prod`, любое другое значение -> `sandbox`.
 
+## Broker Provider Selection
+
+В записи `brokers` хранится поле `provider_code`, которое выбирается пользователем в форме ресурса брокера.
+
+- `provider_code` определяет, какой провайдер должен быть выбран в runtime (`tbank`, `alfa`, `sber` и т.д.).
+- `environment` отдельно в таблице `brokers` не хранится: для `tbank` он централизованно вычисляется из `APP_ENV` в `config/broker-systems/tbank.php`.
+- UI select строится из `config('broker-providers.providers')`, поэтому список доступных провайдеров всегда синхронизирован с enabled-конфигом.
+
 ## Частые сценарии
 
 ```bash

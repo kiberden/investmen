@@ -88,6 +88,35 @@ final class BrokerProvidersConfigTest extends TestCase
         $this->assertSame('prod', $config['default_environment'] ?? null);
     }
 
+    public function test_providers_match_enabled_broker_systems(): void
+    {
+        $config = config('broker-providers');
+        $enabledSystems = config('broker-systems.enabled');
+
+        $this->assertIsArray($config);
+        $this->assertIsArray($enabledSystems);
+        $this->assertArrayHasKey('providers', $config);
+
+        $providerCodes = array_keys($config['providers']);
+        sort($providerCodes);
+
+        $normalizedEnabledSystems = array_map(
+            static fn(mixed $code): string => \is_string($code) ? strtolower(trim($code)) : '',
+            $enabledSystems,
+        );
+        $normalizedEnabledSystems = array_values(array_filter(
+            $normalizedEnabledSystems,
+            static fn(string $code): bool => $code !== '',
+        ));
+        sort($normalizedEnabledSystems);
+
+        $this->assertSame(
+            $normalizedEnabledSystems,
+            $providerCodes,
+            'Configured providers must match enabled broker systems.',
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */

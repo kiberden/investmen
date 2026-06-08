@@ -64,3 +64,6 @@ mago_baseline_analyze:
 
 test_unit:
 	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) php artisan test --testsuite=Unit
+
+exec:
+	@docker compose --env-file $(ENV_FILE) exec $(DOCKER_IMAGE) bash
