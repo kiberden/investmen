@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace App\Providers;
 
+use App\Modules\BrokerGateway\Core\BrokerApiSettingsResolver;
+use App\Modules\BrokerGateway\Core\BrokerProviderCodeResolver;
 use App\Modules\BrokerGateway\Core\BrokerProviderRegistry;
 use App\Modules\BrokerGateway\Providers\TBank\TBankModuleServiceProvider;
 use App\Services\BrokerGateway\Access\BrokerAccessService;
@@ -26,6 +28,19 @@ final class BrokerGatewayServiceProvider extends ServiceProvider
             static fn(Container $container): BrokerGatewayProviderFactory => new BrokerGatewayProviderFactory(
                 $container->make(Repository::class),
                 $container,
+            ),
+        );
+        $this->app->singleton(
+            BrokerProviderCodeResolver::class,
+            static fn(Container $container): BrokerProviderCodeResolver => new BrokerProviderCodeResolver(
+                $container->make(Repository::class),
+            ),
+        );
+        $this->app->singleton(
+            BrokerApiSettingsResolver::class,
+            static fn(Container $container): BrokerApiSettingsResolver => new BrokerApiSettingsResolver(
+                $container->make(BrokerProviderCodeResolver::class),
+                $container->make(BrokerGatewayProviderFactory::class),
             ),
         );
 

@@ -4,7 +4,8 @@ declare(strict_types = 1);
 
 namespace App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Adapters;
 
-use App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory;
+use App\Models\Broker;
+use App\Modules\BrokerGateway\Core\BrokerApiSettingsResolver;
 
 /**
  * Явная adapter-граница к legacy factory.
@@ -12,7 +13,7 @@ use App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory;
 final readonly class LegacyTBankProviderConfigAdapter
 {
     public function __construct(
-        private BrokerGatewayProviderFactory $providerFactory,
+        private BrokerApiSettingsResolver $apiSettingsResolver,
     ) {}
 
     /**
@@ -23,15 +24,35 @@ final readonly class LegacyTBankProviderConfigAdapter
      *     app_name: string
      * }
      */
-    public function resolve(): array
+    public function resolveForBroker(Broker $broker): array
     {
-        $provider = $this->providerFactory->make('tbank');
+        $settings = $this->apiSettingsResolver->resolveForBroker($broker);
 
         return [
-            'environment' => $provider->getEnvironment(),
-            'base_url' => $provider->getBaseUrl(),
-            'timeout' => $provider->getTimeout(),
-            'app_name' => $provider->getAppName(),
+            'environment' => $settings['environment'],
+            'base_url' => $settings['base_url'],
+            'timeout' => $settings['timeout'],
+            'app_name' => $settings['app_name'],
         ];
+    }
+
+    /**
+     * Legacy-метод без контекста брокера для обратной совместимости.
+     *
+     * @deprecated Используйте resolveForBroker().
+     *
+     * @return array{
+     *     environment: string,
+     *     base_url: string,
+     *     timeout: int,
+     *     app_name: string
+     * }
+     */
+    public function resolve(): array
+    {
+        $broker = new Broker;
+        $broker->setAttribute('provider_code', 'tbank');
+
+        return $this->resolveForBroker($broker);
     }
 }

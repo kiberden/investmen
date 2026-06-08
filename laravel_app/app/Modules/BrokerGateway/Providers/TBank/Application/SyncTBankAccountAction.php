@@ -31,7 +31,7 @@ final class SyncTBankAccountAction
      */
     public function execute(Broker $broker): SyncBrokerAccountResult
     {
-        $providerConfig = $this->legacyProviderConfigAdapter->resolve();
+        $providerConfig = $this->legacyProviderConfigAdapter->resolveForBroker($broker);
         $credential = $this->credentialResolver->resolveForEnvironment($broker, $providerConfig['environment']);
         $token = $this->credentialResolver->decryptToken($credential);
         $userInfo = $this->usersRestClient->getInfo(

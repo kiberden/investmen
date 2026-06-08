@@ -47,6 +47,19 @@ cp laravel_app/.env.example laravel_app/.env
 - `environment` отдельно в таблице `brokers` не хранится: для `tbank` он централизованно вычисляется из `APP_ENV` в `config/broker-systems/tbank.php`.
 - UI select строится из `config('broker-providers.providers')`, поэтому список доступных провайдеров всегда синхронизирован с enabled-конфигом.
 
+## Runtime API settings resolve
+
+С 2026-06 runtime-настройки API для синка и профилей резолвятся единым контуром:
+
+`broker.provider_code -> BrokerApiSettingsResolver -> BrokerGatewayProviderFactory -> provider connection_keys`.
+
+- `BrokerApiSettingsResolver` возвращает стабильный набор: `provider_code`, `environment`, `base_url`, `timeout`, `app_name`.
+- `environment` по-прежнему вычисляется из `APP_ENV` через `config/broker-systems/tbank.php`:
+  - `APP_ENV=production` -> `prod`
+  - любое другое значение -> `sandbox`
+- При невалидном `provider_code` или нарушенном конфиге резолвер бросает `RuntimeException` с предсказуемым сообщением.
+- Runtime logging policy остается минимальным: в успешном потоке без DEBUG/INFO, ошибки поднимаются в WARN/ERROR контур вызывающих слоев.
+
 ## Частые сценарии
 
 ```bash

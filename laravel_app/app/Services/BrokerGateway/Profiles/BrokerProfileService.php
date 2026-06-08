@@ -7,22 +7,25 @@ namespace App\Services\BrokerGateway\Profiles;
 use App\Http\Resources\BrokerProfileResource;
 use App\Models\Broker;
 use App\Models\User;
-use App\Modules\BrokerGateway\Core\BrokerProviderCodeResolver;
+use App\Modules\BrokerGateway\Core\BrokerApiSettingsResolver;
 use App\Services\BrokerGateway\Credentials\BrokerCredentialResolver;
-use App\Services\BrokerGateway\Factory\BrokerGatewayProviderFactory;
 use RuntimeException;
 use Throwable;
 
+/**
+ * Сервис получения профилей брокерских счетов для API-ресурсов.
+ */
 final class BrokerProfileService
 {
     public function __construct(
-        private readonly BrokerGatewayProviderFactory $providerFactory,
-        private readonly BrokerProviderCodeResolver $providerCodeResolver,
+        private readonly BrokerApiSettingsResolver $apiSettingsResolver,
         private readonly BrokerCredentialResolver $credentialResolver,
         private readonly BrokerProfileRestClient $brokerProfileRestClient,
     ) {}
 
     /**
+     * Возвращает агрегированные профили по всем брокерам пользователя.
+     *
      * @return list<array<string, mixed>>
      */
     public function profilesForUser(User $user): array
@@ -32,10 +35,9 @@ final class BrokerProfileService
 
         /** @var Broker $broker */
         foreach ($user->brokers()->orderBy('id')->get() as $broker) {
-            $providerCode = $this->providerCodeResolver->resolveForBroker($broker);
             $profiles = [
                 ...$profiles,
-                ...$this->profilesForBroker($broker, $providerCode),
+                ...$this->profilesForBroker($broker),
             ];
         }
 
@@ -43,21 +45,25 @@ final class BrokerProfileService
     }
 
     /**
+     * Получает профили для конкретного брокера через broker-aware runtime-настройки.
+     *
      * @return list<array<string, mixed>>
      */
-    private function profilesForBroker(Broker $broker, string $providerCode): array
+    private function profilesForBroker(Broker $broker): array
     {
         try {
-            $provider = $this->providerFactory->make($providerCode);
-            $credential = $this->credentialResolver->resolveForEnvironment($broker, $provider->getEnvironment());
+            $settings = $this->apiSettingsResolver->resolveForBroker($broker);
+            $credential = $this->credentialResolver->resolveForEnvironment($broker, $settings['environment']);
             $token = $this->credentialResolver->decryptToken($credential);
             $accounts = $this->brokerProfileRestClient->fetchTBankAccounts(
-                baseUrl: $provider->getBaseUrl(),
+                baseUrl: $settings['base_url'],
                 token: $token,
-                timeout: $provider->getTimeout(),
-                appName: $provider->getAppName(),
+                timeout: $settings['timeout'],
+                appName: $settings['app_name'],
             );
         } catch (Throwable $e) {
+            $providerCode = $this->providerCodeOrUnknown($broker);
+
             return [
                 BrokerProfileResource::make([
                     'broker_id' => (int) $broker->getKey(),
@@ -74,8 +80,8 @@ final class BrokerProfileService
             $result[] = BrokerProfileResource::make([
                 'broker_id' => (int) $broker->getKey(),
                 'broker_profile_name' => (string) $broker->getAttribute('profile_name'),
-                'provider' => $providerCode,
-                'environment' => $provider->getEnvironment(),
+                'provider' => $settings['provider_code'],
+                'environment' => $settings['environment'],
                 'account_id' => (string) data_get($account, 'id', ''),
                 'account_name' => (string) data_get($account, 'name', ''),
                 'account_type' => (string) data_get($account, 'type', ''),
@@ -90,8 +96,8 @@ final class BrokerProfileService
             $result[] = BrokerProfileResource::make([
                 'broker_id' => (int) $broker->getKey(),
                 'broker_profile_name' => (string) $broker->getAttribute('profile_name'),
-                'provider' => $providerCode,
-                'environment' => $provider->getEnvironment(),
+                'provider' => $settings['provider_code'],
+                'environment' => $settings['environment'],
                 'error' => 'Профили не найдены в ответе брокера.',
             ])->resolve();
         }
@@ -99,6 +105,9 @@ final class BrokerProfileService
         return $result;
     }
 
+    /**
+     * Нормализует сообщение ошибки для API-ответа профилей.
+     */
     private function messageForException(Throwable $e): string
     {
         if ($e instanceof RuntimeException) {
@@ -106,5 +115,19 @@ final class BrokerProfileService
         }
 
         return 'Не удалось получить данные профилей брокера.';
+    }
+
+    /**
+     * Возвращает код провайдера из брокера либо "unknown" для ошибок резолва.
+     */
+    private function providerCodeOrUnknown(Broker $broker): string
+    {
+        $providerCode = $broker->getAttribute('provider_code');
+
+        if (\is_string($providerCode) && $providerCode !== '') {
+            return strtolower(trim($providerCode));
+        }
+
+        return 'unknown';
     }
 }
