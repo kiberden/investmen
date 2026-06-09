@@ -7,8 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Модель брокера пользователя с привязкой профиля, credential и аккаунта.
@@ -55,11 +55,11 @@ class Broker extends Model
     }
 
     /**
-     * Получить аккаунт брокера.
+     * Получить все аккаунты брокера.
      */
-    public function account(): HasOne
+    public function accounts(): HasMany
     {
-        return $this->hasOne(Account::class);
+        return $this->hasMany(Account::class);
     }
 
     /**
@@ -76,7 +76,7 @@ class Broker extends Model
      */
     public function setTokenAttribute(mixed $value): void
     {
-        Log::debug('[FIX] Ignored transient token field on Broker model.');
+        // Поле token приходит из формы и сохраняется в broker_credentials.
     }
 
     /**
@@ -84,6 +84,6 @@ class Broker extends Model
      */
     public function setExpireAtAttribute(mixed $value): void
     {
-        Log::debug('[FIX] Ignored transient expire_at field on Broker model.');
+        // Поле expire_at приходит из формы и сохраняется в broker_credentials.
     }
 }

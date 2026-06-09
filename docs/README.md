@@ -7,6 +7,10 @@
 - [[Основное/overview|Общее]]
 - [[Архитектура/overview|Архитектура]]
 - [[База данных/overview|База]]
+- [Architecture (markdown)](architecture.md)
+- [Testing (markdown)](testing.md)
+
+Актуальная архитектурная схема для TBank фиксирует multi-account модель (`Broker hasMany Account`) и write-path синхронизацию счетов.
 
 ## Что удалено как неактуальное
 

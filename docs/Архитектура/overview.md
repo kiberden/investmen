@@ -5,6 +5,7 @@
 - [[provider-integration|Подключение провайдеров и T-Bank first]]
 - [[standardization-gap-map|Матрица соответствия и стандартизация MVP-1]]
 - `c4-broker-provider-tbank.puml` (PlantUML источник C4)
+- [Architecture (markdown)](../architecture.md) — актуальная C4 и class-диаграммы по реализованному REST-контуру.
 
 ## Текущий фокус
 
@@ -14,6 +15,8 @@
 - получение `token/secret` только через `brokerCredentials`;
 - сервис-провайдер Laravel для DI-регистрации;
 - базовые API-методы (`portfolio`, `positions`, `operations`);
+- split-клиенты Instruments (`AssetRestClient`, `BondRestClient`, `EtfRestClient`, `ShareRestClient`) + `InstrumentsGateway`;
+- multi-account синк TBank: write-path обновляет все счета, read-path профилей остается без мутаций БД;
 - заглушки для расширенных/stream методов;
 - short-term cache для разгрузки внешнего API.
 

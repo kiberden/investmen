@@ -4,13 +4,10 @@ declare(strict_types = 1);
 
 namespace App\Services\BrokerGateway\Profiles;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
+use App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Rest\TBankBaseRestClient;
 use RuntimeException;
-use Throwable;
 
-final class BrokerProfileRestClient
+final class BrokerProfileRestClient extends TBankBaseRestClient
 {
     /**
      * @return list<array<string, mixed>>
@@ -21,17 +18,17 @@ final class BrokerProfileRestClient
         int $timeout,
         string $appName,
     ): array {
-        try {
-            $response = $this->baseRequest($token, $timeout, $appName)->post($this->accountsUrl($baseUrl), []);
-        } catch (ConnectionException $e) {
-            throw new RuntimeException('Failed to connect to broker profile endpoint.', previous: $e);
-        } catch (Throwable $e) {
-            throw new RuntimeException('Failed to fetch broker profiles.', previous: $e);
-        }
+        $response = $this->postJson(
+            $this->buildUrl($baseUrl, 'UsersService', 'GetAccounts'),
+            [],
+            $token,
+            $timeout,
+            $appName,
+            'Failed to connect to broker profile endpoint.',
+            'Failed to fetch broker profiles.',
+        );
 
-        if (!$response->successful()) {
-            throw new RuntimeException(sprintf('Broker profile request failed with status %d.', $response->status()));
-        }
+        $this->assertSuccessful($response, 'Broker profile request failed with status %d.');
 
         $accounts = data_get($response->json(), 'accounts');
 
@@ -40,21 +37,5 @@ final class BrokerProfileRestClient
         }
 
         return array_values(array_filter($accounts, static fn(mixed $account): bool => \is_array($account)));
-    }
-
-    private function accountsUrl(string $baseUrl): string
-    {
-        return rtrim($baseUrl, '/').'/tinkoff.public.invest.api.contract.v1.UsersService/GetAccounts';
-    }
-
-    private function baseRequest(#[\SensitiveParameter] string $token, int $timeout, string $appName): PendingRequest
-    {
-        return Http::asJson()
-            ->acceptJson()
-            ->timeout(max(1, $timeout))
-            ->withToken($token)
-            ->withHeaders([
-                'x-app-name' => $appName,
-            ]);
     }
 }

@@ -8,7 +8,9 @@ use App\Http\Resources\BrokerProfileResource;
 use App\Models\Broker;
 use App\Models\User;
 use App\Modules\BrokerGateway\Core\BrokerApiSettingsResolver;
+use App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Rest\TBankUsersRestClient;
 use App\Services\BrokerGateway\Credentials\BrokerCredentialResolver;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
@@ -20,7 +22,7 @@ final class BrokerProfileService
     public function __construct(
         private readonly BrokerApiSettingsResolver $apiSettingsResolver,
         private readonly BrokerCredentialResolver $credentialResolver,
-        private readonly BrokerProfileRestClient $brokerProfileRestClient,
+        private readonly TBankUsersRestClient $usersRestClient,
     ) {}
 
     /**
@@ -55,14 +57,25 @@ final class BrokerProfileService
             $settings = $this->apiSettingsResolver->resolveForBroker($broker);
             $credential = $this->credentialResolver->resolveForEnvironment($broker, $settings['environment']);
             $token = $this->credentialResolver->decryptToken($credential);
-            $accounts = $this->brokerProfileRestClient->fetchTBankAccounts(
+            $accountsPayload = $this->usersRestClient->getAccounts(
                 baseUrl: $settings['base_url'],
                 token: $token,
                 timeout: $settings['timeout'],
                 appName: $settings['app_name'],
             );
+            $accounts = data_get($accountsPayload, 'accounts');
+
+            if (!\is_array($accounts)) {
+                $accounts = [];
+            }
         } catch (Throwable $e) {
             $providerCode = $this->providerCodeOrUnknown($broker);
+            Log::error('BrokerProfileService failed to fetch broker profiles.', [
+                'broker_id' => (int) $broker->getKey(),
+                'provider_code' => $providerCode,
+                'endpoint' => 'UsersService/GetAccounts',
+                'error' => $e->getMessage(),
+            ]);
 
             return [
                 BrokerProfileResource::make([
@@ -93,6 +106,12 @@ final class BrokerProfileService
         }
 
         if ($result === []) {
+            Log::warning('BrokerProfileService got empty accounts payload from broker.', [
+                'broker_id' => (int) $broker->getKey(),
+                'provider_code' => $settings['provider_code'],
+                'endpoint' => 'UsersService/GetAccounts',
+            ]);
+
             $result[] = BrokerProfileResource::make([
                 'broker_id' => (int) $broker->getKey(),
                 'broker_profile_name' => (string) $broker->getAttribute('profile_name'),

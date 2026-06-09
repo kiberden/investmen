@@ -88,6 +88,119 @@ flowchart LR
 - Синк (`SyncTBankAccountAction`) и профили (`BrokerProfileService`) используют один и тот же runtime-контур.
 - Runtime logging policy: только WARN/ERROR в ошибочных ветках, без дополнительного INFO/DEBUG в успешном потоке.
 
+### Multi-account sync model (TBank)
+
+- `BrokerProfileService` остается read-only и больше не записывает `accounts` во время `profilesForUser()`.
+- Запись и обновление `accounts` выполняется только в write-path (`SyncBrokerAccountAction` -> `SyncTBankBrokerAccountsAction`).
+- Модель `Broker` использует связь `hasMany(Account::class)`.
+- Идемпотентность синка счетов обеспечивается уникальной парой (`broker_id`, `external_account_id`).
+
+## T-Bank REST contour: Operations + Instruments
+
+### C4 (Container/Component view)
+
+```mermaid
+flowchart LR
+    Admin["Admin User"]
+    MoonShine["MoonShine UI (Laravel)"]
+    Actions["Broker Actions Layer"]
+    AppLayer["TBank Application Actions"]
+    UsersClient["TBankUsersRestClient"]
+    OpsClient["TBankOperationsRestClient"]
+    InstrGateway["InstrumentsGateway"]
+    AssetClient["AssetRestClient"]
+    BondClient["BondRestClient"]
+    EtfClient["EtfRestClient"]
+    ShareClient["ShareRestClient"]
+    CredResolver["BrokerCredentialResolver"]
+    ConfigAdapter["LegacyTBankProviderConfigAdapter"]
+    TBankAPI["TBank Invest REST API"]
+    DB[("PostgreSQL")]
+
+    Admin --> MoonShine
+    MoonShine --> Actions
+    Actions --> AppLayer
+    AppLayer --> CredResolver
+    AppLayer --> ConfigAdapter
+    AppLayer --> UsersClient
+    AppLayer --> OpsClient
+    AppLayer --> InstrGateway
+    InstrGateway --> AssetClient
+    InstrGateway --> BondClient
+    InstrGateway --> EtfClient
+    InstrGateway --> ShareClient
+    UsersClient --> TBankAPI
+    OpsClient --> TBankAPI
+    AssetClient --> TBankAPI
+    BondClient --> TBankAPI
+    EtfClient --> TBankAPI
+    ShareClient --> TBankAPI
+    Actions --> DB
+```
+
+### Class diagram (implemented additions)
+
+```mermaid
+classDiagram
+    class TBankBaseRestClient {
+      +request(endpoint, payload, baseUrl, token, timeout, appName) array
+      -baseRequest(token, timeout, appName)
+      -assertSuccessfulResponse(response, operation) void
+    }
+
+    class TBankUsersRestClient {
+      +getInfo(baseUrl, token, timeout, appName) array
+      +getAccounts(baseUrl, token, timeout, appName) array
+      +getBankAccounts(baseUrl, token, timeout, appName) array
+      +getUserTariff(baseUrl, token, timeout, appName) array
+    }
+
+    class TBankOperationsRestClient {
+      +getPortfolio(baseUrl, token, timeout, appName, accountId) array
+      +getPositions(baseUrl, token, timeout, appName, accountId) array
+      +getOperationsByCursor(baseUrl, token, timeout, appName, request) array
+    }
+
+    class AssetRestClient
+    class BondRestClient
+    class EtfRestClient
+    class ShareRestClient
+    class InstrumentsGateway
+    class FetchTBankPortfolioAction
+    class FetchTBankPositionsAction
+    class FetchTBankOperationsByCursorAction
+    class FetchTBankInstrumentByIdAction
+    class ListTBankInstrumentsAction
+
+    TBankUsersRestClient --|> TBankBaseRestClient
+    TBankOperationsRestClient --|> TBankBaseRestClient
+    AssetRestClient --|> TBankBaseRestClient
+    BondRestClient --|> TBankBaseRestClient
+    EtfRestClient --|> TBankBaseRestClient
+    ShareRestClient --|> TBankBaseRestClient
+
+    InstrumentsGateway --> AssetRestClient
+    InstrumentsGateway --> BondRestClient
+    InstrumentsGateway --> EtfRestClient
+    InstrumentsGateway --> ShareRestClient
+
+    FetchTBankPortfolioAction --> TBankOperationsRestClient
+    FetchTBankPositionsAction --> TBankOperationsRestClient
+    FetchTBankOperationsByCursorAction --> TBankOperationsRestClient
+    FetchTBankInstrumentByIdAction --> InstrumentsGateway
+    ListTBankInstrumentsAction --> InstrumentsGateway
+```
+
+### Logging boundaries (WARN/ERROR only)
+
+| Layer | WARN | ERROR |
+|---|---|---|
+| `App\Actions\Broker\*` | degraded response fallback | - |
+| `App\Services\BrokerGateway\PortfolioService` | - | operations fetch failures |
+| `App\Services\BrokerGateway\InstrumentsService` | - | instruments orchestration failures |
+| `App\Modules\BrokerGateway\Providers\TBank\Application\*` | invalid/missing input | external API orchestration failures |
+| `App\Services\BrokerGateway\Profiles\BrokerProfileService` | empty accounts payload | profile fetch failures |
+
 ## Смежные файлы
 
 - `.ai-factory/ARCHITECTURE.md` — расширенные архитектурные правила.

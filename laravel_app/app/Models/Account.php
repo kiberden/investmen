@@ -26,6 +26,7 @@ class Account extends Model
     protected $fillable = [
         'broker_id',
         'name',
+        'external_account_id',
     ];
 
     /**

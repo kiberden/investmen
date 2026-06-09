@@ -4,17 +4,12 @@ declare(strict_types = 1);
 
 namespace App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Rest;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
-use RuntimeException;
-use Throwable;
 
 /**
  * REST-клиент для endpoint UsersService провайдера T-Bank.
  */
-final class TBankUsersRestClient
+final class TBankUsersRestClient extends TBankBaseRestClient
 {
     /**
      * Запрашивает профиль пользователя из метода UsersService/GetInfo.
@@ -23,51 +18,88 @@ final class TBankUsersRestClient
      */
     public function getInfo(string $baseUrl, #[\SensitiveParameter] string $token, int $timeout, string $appName): array
     {
-        try {
-            /** @var Response $response */
-            $response = $this->baseRequest($token, $timeout, $appName)->post($this->getInfoUrl($baseUrl), []);
-        } catch (ConnectionException $e) {
-            throw new RuntimeException('Failed to connect to T-Bank UsersService/GetInfo endpoint.', previous: $e);
-        } catch (Throwable $e) {
-            throw new RuntimeException('Failed to fetch T-Bank user info.', previous: $e);
-        }
+        /** @var Response $response */
+        $response = $this->postJson(
+            $this->buildUrl($baseUrl, 'UsersService', 'GetInfo'),
+            [],
+            $token,
+            $timeout,
+            $appName,
+            'Failed to connect to T-Bank UsersService/GetInfo endpoint.',
+            'Failed to fetch T-Bank user info.',
+        );
 
-        if (!$response->successful()) {
-            throw new RuntimeException(sprintf(
-                'T-Bank UsersService/GetInfo failed with status %d.',
-                $response->status(),
-            ));
-        }
+        $this->assertSuccessful($response, 'T-Bank UsersService/GetInfo failed with status %d.');
 
-        $payload = $response->json();
-
-        if (!\is_array($payload)) {
-            throw new RuntimeException('T-Bank UsersService/GetInfo returned invalid payload.');
-        }
-
-        /** @var array<string, mixed> $payload */
-        return $payload;
+        return $this->assertArrayPayload($response, 'T-Bank UsersService/GetInfo returned invalid payload.');
     }
 
     /**
-     * Формирует полный URL метода UsersService/GetInfo.
+     * Запрашивает список инвестиционных счетов пользователя из метода UsersService/GetAccounts.
+     *
+     * @return array<string, mixed>
      */
-    private function getInfoUrl(string $baseUrl): string
+    public function getAccounts(string $baseUrl, #[\SensitiveParameter] string $token, int $timeout, string $appName): array
     {
-        return rtrim($baseUrl, '/').'/tinkoff.public.invest.api.contract.v1.UsersService/GetInfo';
+        /** @var Response $response */
+        $response = $this->postJson(
+            $this->buildUrl($baseUrl, 'UsersService', 'GetAccounts'),
+            [],
+            $token,
+            $timeout,
+            $appName,
+            'Failed to connect to T-Bank UsersService/GetAccounts endpoint.',
+            'Failed to fetch T-Bank user accounts.',
+        );
+
+        $this->assertSuccessful($response, 'T-Bank UsersService/GetAccounts failed with status %d.');
+
+        return $this->assertArrayPayload($response, 'T-Bank UsersService/GetAccounts returned invalid payload.');
     }
 
     /**
-     * Создает базовый HTTP-запрос с авторизацией и заголовками приложения.
+     * Запрашивает список банковских счетов пользователя из метода UsersService/GetBankAccounts.
+     *
+     * @return array<string, mixed>
      */
-    private function baseRequest(#[\SensitiveParameter] string $token, int $timeout, string $appName): PendingRequest
+    public function getBankAccounts(string $baseUrl, #[\SensitiveParameter] string $token, int $timeout, string $appName): array
     {
-        return Http::asJson()
-            ->acceptJson()
-            ->timeout(max(1, $timeout))
-            ->withToken($token)
-            ->withHeaders([
-                'x-app-name' => $appName,
-            ]);
+        /** @var Response $response */
+        $response = $this->postJson(
+            $this->buildUrl($baseUrl, 'UsersService', 'GetBankAccounts'),
+            [],
+            $token,
+            $timeout,
+            $appName,
+            'Failed to connect to T-Bank UsersService/GetBankAccounts endpoint.',
+            'Failed to fetch T-Bank user bank accounts.',
+        );
+
+        $this->assertSuccessful($response, 'T-Bank UsersService/GetBankAccounts failed with status %d.');
+
+        return $this->assertArrayPayload($response, 'T-Bank UsersService/GetBankAccounts returned invalid payload.');
+    }
+
+    /**
+     * Запрашивает тариф пользователя из метода UsersService/GetUserTariff.
+     *
+     * @return array<string, mixed>
+     */
+    public function getUserTariff(string $baseUrl, #[\SensitiveParameter] string $token, int $timeout, string $appName): array
+    {
+        /** @var Response $response */
+        $response = $this->postJson(
+            $this->buildUrl($baseUrl, 'UsersService', 'GetUserTariff'),
+            [],
+            $token,
+            $timeout,
+            $appName,
+            'Failed to connect to T-Bank UsersService/GetUserTariff endpoint.',
+            'Failed to fetch T-Bank user tariff.',
+        );
+
+        $this->assertSuccessful($response, 'T-Bank UsersService/GetUserTariff failed with status %d.');
+
+        return $this->assertArrayPayload($response, 'T-Bank UsersService/GetUserTariff returned invalid payload.');
     }
 }

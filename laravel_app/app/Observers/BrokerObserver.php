@@ -8,7 +8,6 @@ use App\Actions\Broker\SyncBrokerCredentialAction;
 use App\Models\Broker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Наблюдатель модели Broker: подготавливает данные перед сохранением и синхронизирует credential.
@@ -74,11 +73,6 @@ final class BrokerObserver
             }
         }
 
-        if ($strippedFields !== []) {
-            Log::debug('[FIX] Removed transient broker form fields before persistence.', [
-                'fields' => $strippedFields,
-                'broker_id' => $broker->getKey(),
-            ]);
-        }
+        // Транзитные поля удаляются молча: это штатная очистка перед сохранением.
     }
 }

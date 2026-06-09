@@ -9,6 +9,7 @@ use App\Modules\BrokerGateway\Core\DTO\SyncBrokerAccountResult;
 use App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Adapters\LegacyTBankProviderConfigAdapter;
 use App\Modules\BrokerGateway\Providers\TBank\Infrastructure\Rest\TBankUsersRestClient;
 use App\Services\BrokerGateway\Credentials\BrokerCredentialResolver;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Сценарий синхронизации имени брокерского аккаунта через REST API T-Bank.
@@ -44,6 +45,10 @@ final class SyncTBankAccountAction
         $name = data_get($userInfo, 'name');
 
         if (!\is_string($name) || $name === '') {
+            Log::warning('SyncTBankAccountAction fallback to broker profile_name.', [
+                'broker_id' => (int) $broker->getKey(),
+                'endpoint' => 'UsersService/GetInfo',
+            ]);
             $name = (string) $broker->getAttribute('profile_name');
         }
 
